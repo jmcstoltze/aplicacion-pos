@@ -198,7 +198,6 @@ class Usuario(models.Model):
             verbose_name_plural (str): Nombre plural en interfaces administrativas.
             ordering (list): Criterio de ordenación por defecto [rut, apellidos, nombres].
         """
-        
         verbose_name = "Usuario"
         verbose_name_plural = "Usuarios"
         ordering = ["rut", "ap_paterno", "ap_materno", "nombres", "usuario__last_name"]
