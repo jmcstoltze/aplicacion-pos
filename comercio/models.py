@@ -1,5 +1,4 @@
 from django.db import models
-from django.db.models import Sum
 from django.core.validators import MinValueValidator
 
 from usuarios.models import Comuna
@@ -175,6 +174,49 @@ class Bodega(models.Model):
         verbose_name_plural = "Bodegas"
         ordering = ['sucursal_id__nombre_sucursal', '-es_principal', 'nombre_bodega']
 
+# Representa la categoría del productos dentro de la tienda
+class Categoria(models.Model):
+    """
+    Modelo que representa una categoría de productos en el sistema de inventario.
+    
+    Las categorías permiten organizar jerárquicamente los productos para facilitar
+    su gestión y búsqueda. Cada categoría puede tener múltiples productos asociados.
+
+    Attributes:
+        nombre_categoria (CharField): Nombre identificatorio único de la categoría.
+            - Longitud máxima: 150 caracteres
+            - Requerido (null=False, blank=False)
+            - Único (unique=True)
+        descripcion (CharField): Explicación detallada del alcance de la categoría.
+            - Longitud máxima: 150 caracteres
+            - Opcional (blank=True)
+        created_at (DateTimeField): Marca temporal de creación automática.
+            - auto_now_add=True (se establece solo al crear)
+
+    Methods:
+        __str__: Representación legible del objeto (devuelve nombre_categoria).
+
+    Meta:
+        verbose_name: Nombre singular para la interfaz administrativa.
+        verbose_name_plural: Nombre plural para la interfaz administrativa.
+    """
+    nombre_categoria = models.CharField(
+        max_length=150, null=False, blank=False, unique=True,
+        help_text="Nombre único de la categoría (ej: 'Guitarras eléctricas')")
+    descripcion = models.CharField(
+        max_length=150, null=False, blank=True, 
+        help_text="Descripción detallada de la categoría")
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        help_text="Fecha de creación automática al guardar")
+    
+    def __str__(self):
+        return self.nombre_categoria
+    
+    class Meta:
+        verbose_name = "Categoría"
+        verbose_name_plural = "Categorías"
+
 # Representa a los productos asociados a las sucursales y las bodegas, y que se transan en las cajas o puntos de venta
 class Producto(models.Model):
     """
@@ -188,6 +230,8 @@ class Producto(models.Model):
         descripcion (str): Detalles adicionales del producto (requerido).
         precio_venta (Decimal): Precio de venta unitario (valores positivos).
         disponible (bool): Estado calculado automáticamente según stock.
+        created_at (date): Fecha de creación del producto.
+        update_at (date): Fecha de actualización del producto.
     """
     sku = models.CharField(
         max_length=80, null=False, blank=False, unique=True,
@@ -210,6 +254,12 @@ class Producto(models.Model):
         help_text="Precio unitario en moneda local")
     disponible = models.BooleanField(
         help_text="Calculado automáticamente según stock")
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        help_text="Fecha de creación automática al guardar")
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        help_text="Fecha de actualización automática al modificar")
 
     def __str__(self):
         return f"{self.nombre_abreviado} | SKU: {self.sku}"
