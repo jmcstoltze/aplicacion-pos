@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 from usuarios.models import Usuario
 
@@ -54,3 +55,51 @@ def obtener_usuario(user: User) -> Usuario | None:
         return Usuario.objects.get(user=user)
     except (Usuario.DoesNotExist, ValueError, TypeError):
         return None
+
+def obtener_datos_usuario(user: User) -> dict:
+    """
+    Obtiene los datos extendidos de un usuario desde el modelo Usuario y los formatea.
+
+    Esta función toma un objeto User de Django, busca su perfil extendido relacionado (Usuario)
+    y devuelve un diccionario con los datos formateados para su visualización.
+
+    Parámetros:
+        user (User): Instancia del modelo User de Django (auth.User) para la cual se obtendrán
+                   los datos extendidos.
+
+    Retorna:
+        dict: Diccionario con los datos del usuario formateados con las siguientes claves:
+            - 'rol': Nombre del rol (capitalizado, ej. 'Administrador')
+            - 'ap_paterno': Apellido paterno (formato título, ej. 'González')
+            - 'ap_materno': Apellido materno (formato título, ej. 'Pérez')
+            - 'nombres': Nombres (formato título, ej. 'María José')
+            - 'username': Nombre de usuario (minúsculas, ej. 'maria.perez')
+            - 'email': Correo electrónico (minúsculas, ej. 'maria@ejemplo.com')
+            - 'telefono': Número telefónico (sin formato especial)
+
+    Excepciones:
+        Usuario.DoesNotExist: Si no existe un perfil Usuario asociado al User.
+        AttributeError: Si algún campo esperado no existe en el modelo Usuario.
+
+    Ejemplo:
+        >>> usuario = User.objects.get(username='ana.gomez')
+        >>> datos = obtener_datos_usuario(usuario)
+        >>> print(datos['nombres'])
+        'Ana María'
+        >>> print(datos['rol'])
+        'Jefe de Local'
+    """
+    try:
+        usuario = Usuario.objects.get(user=user)
+
+        return {
+            'rol': usuario.rol.nombre_rol.capitalize(),
+            'ap_paterno': usuario.ap_paterno.title(),
+            'ap_materno': usuario.ap_materno.title(),
+            'nombres': usuario.nombres.title(),
+            'username': usuario.usuario.username.lower(),
+            'email': usuario.email.lower(),
+            'telefono': usuario.telefono,
+        }
+    except (ObjectDoesNotExist, AttributeError):
+        return {}
