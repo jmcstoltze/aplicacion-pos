@@ -9,7 +9,6 @@ from .services import (
     obtener_datos_usuario
 )
     
-
 def inicio_sesion(request) -> HttpResponse | HttpResponseRedirect:
     """
     Maneja el proceso de autenticación y redirección de usuarios según su rol.

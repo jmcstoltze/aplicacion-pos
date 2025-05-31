@@ -10,6 +10,7 @@ def crear_producto(
         nombre_abreviado,
         descripcion,
         precio_venta=None,
+        imagen=None,
         **kwargs
 ):
     """
@@ -22,6 +23,7 @@ def crear_producto(
         nombre_abreviado (str): Nombre abreviado
         descripcion (str): Descripción detallada
         precio_venta (Decimal): Precio (opcional)
+        imagen (UploadedFile/InMemoryUploadedFile): Archivo de imagen (opcional)
         **kwargs: Otros campos del modelo
         
     Returns:
@@ -56,6 +58,16 @@ def crear_producto(
             if precio_venta is not None and precio_venta < 0:
                 raise ValidationError("El precio de venta no puede ser negativo")
             
+            # Validar tipo de archivo si se proporciona imagen
+            if imagen:
+                if not imagen.content_type.startswith('image/'):
+                    raise ValidationError("El archivo debe ser una imagen válida")
+                
+                # Limitar tamaño de imagen (ejemplo: 2MB)
+                if imagen.size > 2 * 1024 * 1024:
+                    raise ValidationError("La imagen no puede superar los 2MB")
+                                            
+
             # Crear el producto
             producto = Producto(
                 sku=sku,
@@ -66,6 +78,10 @@ def crear_producto(
                 precio_venta=precio_venta,
                 **kwargs
             )
+
+            # Asignar imagen si existe
+            if imagen:
+                producto.imagen = imagen
 
             # Validación completa del modelo
             producto.full_clean()
@@ -161,12 +177,13 @@ def listar_productos(
     except Exception as e:
         raise ValueError(f"Error al listar productos: {str(e)}")
 
-def editar_producto(producto_id, **kwargs):
+def editar_producto(producto_id, imagen=None, **kwargs):
     """
     Edita un producto existente con los datos proporcionados.
     
     Args:
         producto_id: ID del producto a editar
+        imagen (UploadedFile/InMemoryUploadedFile): Nueva imagen del producto (opcional)
         **kwargs: Campos a actualizar con sus nuevos valores
         
     Returns:
@@ -213,6 +230,21 @@ def editar_producto(producto_id, **kwargs):
             if 'precio_venta' in kwargs and kwargs['precio_venta'] is not None:
                 if float(kwargs['precio_venta']) < 0:
                     raise ValidationError("El precio de venta no puede ser negativo")
+                
+            # Validar imagen si se proporciona
+            if imagen:
+                if not imagen.content_type.startswith('image/'):
+                    raise ValidationError("El archivo debe ser una imagen válida")
+                
+                # Limitar tamaño de imagen (ejemplo: 2MB)
+                if imagen.size > 2 * 1024 * 1024:
+                    raise ValidationError("La imagen no puede superar los 2MB")
+                
+                # Eliminar la imagen anterior si existe
+                if producto.imagen:
+                    producto.imagen.delete(save=False)
+                
+                producto.imagen = imagen
             
             # Actualizar los campos
             for key, value in kwargs.items():
@@ -230,7 +262,7 @@ def editar_producto(producto_id, **kwargs):
 
 def eliminar_producto(producto_id):
     """
-    Elimina permanentemente un producto de la base de datos.
+    Elimina permanentemente un producto de la base de datos, incluyendo su imagen asociada.
     
     Args:
         producto_id: ID del producto a eliminar
@@ -246,6 +278,10 @@ def eliminar_producto(producto_id):
         with transaction.atomic():
             # Obtener el producto
             producto = Producto.objects.get(pk=producto_id)
+
+            # Eliminar la imagen asociada si existe
+            if producto.imagen:
+                producto.imagen.delete(save=False)
 
             # Eliminar el producto
             producto.delete()

@@ -230,6 +230,7 @@ class Producto(models.Model):
         descripcion (str): Detalles adicionales del producto (requerido).
         precio_venta (Decimal): Precio de venta unitario (valores positivos).
         disponible (bool): Disponibilidad del producto.
+        imagen (ImageField): Imagen  del producto.
         created_at (date): Fecha de creación del producto.
         update_at (date): Fecha de actualización del producto.
     """
@@ -255,6 +256,11 @@ class Producto(models.Model):
     disponible = models.BooleanField(
         default=True,
         help_text="Disponibilidad del producto")
+    imagen = models.ImageField(
+        upload_to='producto/%Y/%m/%d/',
+        null=True, blank=True,
+        help_text="Imagen representativa del producto"
+    )
     created_at = models.DateTimeField(
         auto_now_add=True,
         help_text="Fecha de creación automática al guardar")
