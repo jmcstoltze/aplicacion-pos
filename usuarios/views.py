@@ -3,7 +3,12 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from services import obtener_user, obtener_usuario, obtener_datos_usuario
+from .services import (
+    obtener_user,
+    obtener_usuario,
+    obtener_datos_usuario
+)
+    
 
 def inicio_sesion(request) -> HttpResponse | HttpResponseRedirect:
     """
@@ -46,7 +51,7 @@ def inicio_sesion(request) -> HttpResponse | HttpResponseRedirect:
 
         # Si el usuario no existe lo indica
         if not user:
-            return render(request, 'inicio_sesion.html', {'error_message': 'Usuario no existe'})
+            return render(request, 'inicio-sesion.html', {'error_message': 'Usuario no existe'})
         
         # Autentica al usuario y contraseña
         usuario_autenticado = authenticate(request, username=user.username, password=password)
@@ -68,13 +73,13 @@ def inicio_sesion(request) -> HttpResponse | HttpResponseRedirect:
             else:
                 # Manejo de roles no reconocidos
                 logout(request)
-                return render(request, 'inicio_sesion.html', {'error_message': 'Rol de usuario no válido'})
+                return render(request, 'inicio-sesion.html', {'error_message': 'Rol de usuario no válido'})
         else:
             # Credenciales inválidas
-            return render(request, 'inicio_sesion.html', {'error_message': 'Contraseña incorrecta'})
+            return render(request, 'inicio-sesion.html', {'error_message': 'Contraseña incorrecta'})
     else:
         # Método GET muestra el formulario
-        return render(request, "inicio_sesion.html", {}) # Renderiza la página
+        return render(request, "inicio-sesion.html", {}) # Renderiza la página
 
 @login_required
 def dashboard(request) -> HttpResponse:

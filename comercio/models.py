@@ -88,7 +88,7 @@ class Sucursal(models.Model):
         max_length=20, null=False, blank=False,
         help_text="Número de contacto en formato +56912345678")
     direccion = models.CharField(
-        max_length=250, null=False, blank=False
+        max_length=250, null=False, blank=False,
         help_text="Dirección de la sucursal")
     es_casa_matriz = models.BooleanField(
         default=False, # No casa matriz por defecto
@@ -229,7 +229,7 @@ class Producto(models.Model):
         nombre_abreviado (str): Nombre corto para mostrar en tickets/facturas (requerido, único).
         descripcion (str): Detalles adicionales del producto (requerido).
         precio_venta (Decimal): Precio de venta unitario (valores positivos).
-        disponible (bool): Estado calculado automáticamente según stock.
+        disponible (bool): Disponibilidad del producto.
         created_at (date): Fecha de creación del producto.
         update_at (date): Fecha de actualización del producto.
     """
@@ -253,7 +253,8 @@ class Producto(models.Model):
         decimal_places=2, validators=[MinValueValidator(0)],
         help_text="Precio unitario en moneda local")
     disponible = models.BooleanField(
-        help_text="Calculado automáticamente según stock")
+        default=True,
+        help_text="Disponibilidad del producto")
     created_at = models.DateTimeField(
         auto_now_add=True,
         help_text="Fecha de creación automática al guardar")

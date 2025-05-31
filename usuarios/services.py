@@ -1,6 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
-from usuarios.models import Usuario
+from .models import Usuario
 
 def obtener_user(username: str) -> User | None:
     """
