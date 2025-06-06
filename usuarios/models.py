@@ -87,15 +87,13 @@ class Rol(models.Model):
     nombre_rol = models.CharField(
         max_length=80, null=False, blank=False, unique=True,
         choices=ROLES_CHOICES,
-        help_text="Nombre identificador del rol (Administrador, Jefe de local o Cliente)"
+        help_text="Nombre identificador del rol (Administrador, Jefe de local o Cajero)"
     )
     
     descripcion = models.CharField(
         max_length=250,
         help_text="Descripción detallada de las funciones asociadas al rol"
     )
-
-    orden = models.PositiveSmallIntegerField(help_text="Orden de jerarquía de los roles")
     
     def __str__(self):
         """
@@ -104,7 +102,7 @@ class Rol(models.Model):
         Returns:
             str: Nombre del rol en formato humano.
         """
-        return f"{self.nombre_rol}"
+        return self.nombre_rol
     
     class Meta:
         """
@@ -117,7 +115,7 @@ class Rol(models.Model):
         """
         verbose_name = "Rol"
         verbose_name_plural = "Roles"
-        ordering = ["orden"]
+        ordering = ["id"]
         
 # Usuario de la aplicación, puede ser Administrador, Jefe de local o Cajero
 class Usuario(models.Model):
@@ -138,47 +136,54 @@ class Usuario(models.Model):
         direccion (CharField): Dirección física completa.
         usuario (OneToOneField): Relación con el modelo User de Django para autenticación.
         estado (BooleanField): Estado del usuario (activo o eliminado).
-        usuario (ForeignKey): Referencia a auth user. 
         rol (ForeignKey): Referencia al rol (Administrador, Jefe de Local, Cajero).
-        comuna (FOreignKey): Referencia a la comuna de la dirección.
+        comuna (FOreignKey): Referencia a la comuna de la dirección. NULLABLE.
     """    
     rut = models.CharField(
         max_length=12, null=False, blank=False, unique=True,
         help_text="RUT en formato 12345678-9 (incluye guión y dígito verificador)")
+    
     nombres = models.CharField(
         max_length=80, null=False, blank=False,
         help_text="Nombres del usuario")
+    
     ap_paterno = models.CharField(
         max_length=80, null=False, blank=False,
         help_text="Apellido paterno")
+    
     ap_materno = models.CharField(
         max_length=80, null=False, blank=False,
         help_text="Apellido materno")
+    
     telefono = models.CharField(
         max_length=20, null=False, blank=False,
         help_text="Número de contacto en formato +56912345678")
+    
     email = models.EmailField(
         max_length=80, null=False, blank=False,
         help_text="Correo electrónico válido (será usado para notificaciones)")
+    
     direccion = models.CharField(
         max_length=250, null=False, blank=False,
         help_text="Dirección completa: Calle, número, [depto/villa/población/bloque] (opcional)")
+    
     estado = models.BooleanField(
         default=True,
         verbose_name="Activo",
         help_text="Indica si el registro está activo o eliminado")
+    
     usuario = models.OneToOneField(
         User, on_delete=models.PROTECT, # Eliminación protegida
-        help_text="Usuario de autenticación asociado (auth.User)",
-        related_name="usuario")
+        help_text="Usuario de autenticación asociado (auth.User)")
+    
     rol = models.ForeignKey(
         Rol, on_delete=models.PROTECT, # Eliminación protegida
-        help_text="Rol del usuario (Administrador, Jefe de local o Cliente)",
-        related_name="rol")
+        help_text="Rol del usuario (Administrador, Jefe de local o Cliente)")
+    
     comuna = models.ForeignKey(
-        Comuna, on_delete=models.PROTECT, # Eliminación protegida
-        help_text="Comuna de la dirección del usuario",
-        related_name="comuna")
+        Comuna, on_delete=models.SET_NULL, # Si se elimina la comuna, establece NULL
+        null=True, blank=True,
+        help_text="Comuna de la dirección del usuario (opcional)")
 
     def __str__(self):
         """

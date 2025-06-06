@@ -39,7 +39,7 @@ class Caja(models.Model):
         verbose_name="Asignada",
         help_text="Indica si la caja tiene un usuario asignado actualmente")
     usuario_id = models.ForeignKey(
-        Usuario, on_delete=models.SET_NULL, null=True, blank=True # Si se elimina el usuario, la relación es NULL
+        Usuario, on_delete=models.SET_NULL, null=True, blank=True, # Si se elimina el usuario, la relación es NULL
         verbose_name="Usuario asignado",
         help_text="Usuario actualmente asignado a esta caja")
     sucursal_id = models.ForeignKey(
