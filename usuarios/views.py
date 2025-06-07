@@ -50,35 +50,35 @@ def inicio_sesion(request) -> HttpResponse | HttpResponseRedirect:
 
         # Si el usuario no existe lo indica
         if not user:
-            return render(request, 'inicio-sesion.html', {'error_message': 'Usuario no existe'})
+            return render(request, 'registration/login.html', {'error_message': 'Usuario no existe'})
         
         # Autentica al usuario y contraseña
-        usuario_autenticado = authenticate(request, username=user.username, password=password)
+        auth_user = authenticate(request, username=username, password=password)
 
         # Si usuario existe lo logea
-        if usuario_autenticado:
-            login(request, usuario_autenticado)
+        if auth_user is not None:
+            login(request, auth_user)
 
             # Verifica si usuario logeado es superusuario
-            if usuario_autenticado.is_superuser:
+            if auth_user.is_superuser:
                 # Redirige a panel de administración de Django
                 return redirect('/admin/')
 
-            usuario = obtener_usuario(user) # Obtiene el Usuario
+            usuario = obtener_usuario(auth_user) # Obtiene el Usuario
 
             # Redirección según rol de usuario
-            if usuario.rol.nombre_rol == 'Administrador' or usuario.rol.nombre_rol == 'Jefe de Local' or usuario.rol.nombre_rol == 'Cajero':
+            if usuario.rol.nombre_rol in ['Administrador', 'Jefe de local', 'Cajero']:
                 return redirect('dashboard')
             else:
                 # Manejo de roles no reconocidos
                 logout(request)
-                return render(request, 'inicio-sesion.html', {'error_message': 'Rol de usuario no válido'})
+                return render(request, 'registration/login.html', {'error_message': 'Rol de usuario no válido'})
         else:
             # Credenciales inválidas
-            return render(request, 'inicio-sesion.html', {'error_message': 'Contraseña incorrecta'})
+            return render(request, 'registration/login.html', {'error_message': 'Credenciales inválidas'})
     else:
         # Método GET muestra el formulario
-        return render(request, "inicio-sesion.html", {}) # Renderiza la página
+        return render(request, "registration/login.html", {}) # Renderiza la página
 
 @login_required
 def dashboard(request) -> HttpResponse:
@@ -115,7 +115,27 @@ def dashboard(request) -> HttpResponse:
         >>> response.status_code
         302
     """
+    
     # Rescata datos del Usuario para mostrar en la vista
     datos_usuario = obtener_datos_usuario(request.user)
-    return render(request, 'dashboard.html', {'datos_usuario': datos_usuario})
-            
+    return render(request, 'usuarios/views/dashboard.html', {'datos_usuario': datos_usuario})
+
+@login_required    
+def cerrar_sesion(request):
+    """
+    Cierra la sesión del usuario actual y redirige a la página de login.
+    
+    Args:
+        request: Objeto HttpRequest con los datos de la solicitud
+        
+    Returns:
+        HttpResponseRedirect: Redirección a la página de login
+        
+    Funcionalidades:
+        - Cierra la sesión del usuario
+        - Limpia la sesión
+        - Redirige a la página de login
+    """
+    logout(request)
+
+    return redirect('inicio_sesion')

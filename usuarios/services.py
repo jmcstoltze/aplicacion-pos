@@ -52,7 +52,7 @@ def obtener_usuario(user: User) -> Usuario | None:
         ...     print(f"Perfil extendido: {usuario.telefono}")
     """
     try:
-        return Usuario.objects.get(user=user)
+        return Usuario.objects.get(usuario=user)
     except (Usuario.DoesNotExist, ValueError, TypeError):
         return None
 
@@ -90,15 +90,15 @@ def obtener_datos_usuario(user: User) -> dict:
         'Jefe de Local'
     """
     try:
-        usuario = Usuario.objects.get(user=user)
+        usuario = Usuario.objects.get(usuario=user)
 
         return {
             'rol': usuario.rol.nombre_rol.capitalize(),
             'ap_paterno': usuario.ap_paterno.title(),
             'ap_materno': usuario.ap_materno.title(),
             'nombres': usuario.nombres.title(),
-            'username': usuario.usuario.username.lower(),
-            'email': usuario.email.lower(),
+            'username': user.username.lower(),
+            'email': user.email.lower(),
             'telefono': usuario.telefono,
         }
     except (ObjectDoesNotExist, AttributeError):
