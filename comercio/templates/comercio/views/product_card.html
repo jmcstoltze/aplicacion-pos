@@ -1,0 +1,24 @@
+<!-- Tarjeta de producto individual -->
+<div class="col">
+    <div class="card product-card h-100">
+        <img src="{{ producto.imagen.url }}" class="card-img-top product-img" alt="{{ producto.nombre_producto }}">
+        <div class="card-body">
+            <h5 class="card-title">{{ producto.nombre_producto }}</h5>
+            <p class="card-text">${{ producto.precio_venta }}</p>
+            <small class="text-muted">{{ producto.sku }}</small><br>
+            <small class="text-muted">SKU:</small><br>
+            <small class="text-muted">{{ producto.sku }}</small><br>
+            <small class="text-muted">Stock total: {{ producto.stock_total }} un.</small><br>                        
+
+            <div class="edit-buttons mt-2 d-none">
+                <button class="btn btn-sm btn-solid-orange" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#editProductModal" 
+                        onclick="loadProductData('{{ producto.sku }}')">
+                    Editar
+                </button>
+                <button class="btn btn-sm btn-black-edit">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>

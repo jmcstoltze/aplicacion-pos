@@ -1,7 +1,19 @@
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import transaction, models
-from .models import Producto
+from .models import Producto, Categoria
+
+def obtener_productos():
+    """
+    Obtiene todos los productos
+    """
+    return Producto.objects.all()
+
+def obtener_categorias():
+    """
+    Obtiene todas las categorías disponibles
+    """
+    return Categoria.objects.all()
 
 def crear_producto(
         sku,
@@ -9,6 +21,7 @@ def crear_producto(
         nombre_producto,
         nombre_abreviado,
         descripcion,
+        categoria_id=None,
         precio_venta=None,
         imagen=None,
         **kwargs
@@ -21,6 +34,7 @@ def crear_producto(
         codigo_barra (str): Código de barras
         nombre_producto (str): Nombre completo
         nombre_abreviado (str): Nombre abreviado
+        categoria_id (int): ID de la categoría del producto
         descripcion (str): Descripción detallada
         precio_venta (Decimal): Precio (opcional)
         imagen (UploadedFile/InMemoryUploadedFile): Archivo de imagen (opcional)
@@ -54,6 +68,14 @@ def crear_producto(
             if Producto.objects.filter(nombre_abreviado=nombre_abreviado).exists():
                 raise ValidationError(f"El nombre abreviado {nombre_abreviado} ya existe")
             
+            # Validar categoría si se proporciona
+            categoria = None
+            if categoria_id:
+                try:
+                    categoria = Categoria.objects.get(pk=categoria_id)
+                except Categoria.DoesNotExist:
+                    raise ValidationError(f"No existe una categoría con ID {categoria_id}")
+            
             # Valida precio si se proporciona
             if precio_venta is not None and precio_venta < 0:
                 raise ValidationError("El precio de venta no puede ser negativo")
@@ -78,6 +100,10 @@ def crear_producto(
                 precio_venta=precio_venta,
                 **kwargs
             )
+
+            # Asignar categoría si existe
+            if categoria:
+                producto.categoria = categoria
 
             # Asignar imagen si existe
             if imagen:

@@ -151,7 +151,7 @@ class Bodega(models.Model):
         max_length=80, null=False, blank=False, unique=True,
         help_text="Indica el nombre de la bodega")
     es_principal = models.BooleanField(
-        default=False, verbose_name = "No es principal",
+        default=False, verbose_name = "Es principal",
         help_text="Indica si la bodega corresponde a la bodega principal")
     sucursal_id =models.ForeignKey(
         Sucursal, on_delete=models.SET_NULL, null=True) # Si se elimina la sucursal, la relación es NULL
@@ -240,6 +240,7 @@ class Producto(models.Model):
     codigo_barra = models.CharField(
         max_length=150, null=False, blank=False, unique=True,
         help_text="Código de barras escaneable")
+    categoria = models.ForeignKey(Categoria, on_delete=models.PROTECT),
     nombre_producto = models.CharField(
         max_length=150, null=False, blank=False, unique=True,
         help_text="Nombre descriptivo del producto")

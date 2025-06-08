@@ -1,0 +1,29 @@
+<!-- Barra de búsqueda y filtros -->
+<div class="container-fluid bg-light py-2 shadow-sm">
+    <div class="row align-items-center">
+        <!-- Buscador -->
+        <div class="col-md-6 mb-2 mb-md-0">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Buscar por nombre o SKU..." id="searchInput">
+                <button class="btn btn-solid-orange" type="button" id="searchButton">
+                    <i class="bi bi-search"></i> Buscar
+                </button>
+            </div>
+        </div>
+    
+        <!-- Filtro por categoría -->            
+        <div class="col-md-4">
+            <select class="form-select" id="branchSelect">
+                <option value="all">Todas las categorías</option>
+                {% for categoria in categorias %}
+                    <option value="{{ categoria.id }}">{{ categoria.nombre_categoria }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    
+        <!-- Contador de resultados -->
+        <div class="col-md-2 text-md-end">
+            <small class="text-muted" id="resultCount">{{ productos|length }} productos</small>
+        </div>
+    </div>
+</div>
