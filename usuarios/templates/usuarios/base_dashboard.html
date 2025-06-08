@@ -33,8 +33,7 @@
                         <li><p class="dropdown-item">{{ request.user.usuario.telefono }}</p></li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
-                            <a class="dropdown-item logout-btn" href="{% url 'cerrar_sesion' %}">
-                                Cerrar sesión <i class="bi bi-arrow-right-circle"></i>
+                            <a id="logoutLink" class="dropdown-item logout-btn" href="#" data-logout-url="{% url 'cerrar_sesion' %}">Cerrar sesión <i class="bi bi-arrow-right-circle"></i>
                             </a>
                         </li>
                     </ul>

@@ -52,7 +52,8 @@ function enableEditMode() {
     });
 }
 
-// Función para cargar datos del producto
+// Función para cargar datos del producto de prueba
+/*
 function loadProductData(sku) {
     // Aquí normalmente harías una petición AJAX o buscar datos
     // Ejemplo con datos estáticos basados en el SKU:
@@ -73,7 +74,35 @@ function loadProductData(sku) {
         document.getElementById('editProductSKU').value = product.sku;
         document.getElementById('editProductImage').value = product.image;
     }
-}
+}*/
 
 // Cambio automático del año en el footer
 document.getElementById('year').textContent = new Date().getFullYear();
+
+document.addEventListener('DOMContentLoaded', function () {
+    const logoutLink = document.getElementById('logoutLink');
+
+    logoutLink.addEventListener('click', function (e) {
+        e.preventDefault(); // Evita la navegación inmediata
+
+        const confirmLogout = confirm("¿Está seguro de que desea cerrar sesión?");
+        if (confirmLogout) {
+            // Redirecciona manualmente al logout
+            window.location.href = logoutLink.getAttribute('data-logout-url');
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const logoutLink = document.getElementById('logoutLink2');
+
+    logoutLink.addEventListener('click', function (e) {
+        e.preventDefault(); // Evita la navegación inmediata
+
+        const confirmLogout = confirm("¿Está seguro de que desea cerrar sesión?");
+        if (confirmLogout) {
+            // Redirecciona manualmente al logout
+            window.location.href = logoutLink.getAttribute('data-logout-url');
+        }
+    });
+});

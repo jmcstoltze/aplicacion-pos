@@ -63,7 +63,7 @@
         
             <!-- Cerrar sesión -->
             <li>
-                <a href="{% url 'cerrar_sesion' %}" class="logout-menu-item">
+                <a id="logoutLink2" href="#" data-logout-url="{% url 'cerrar_sesion' %}" class="logout-menu-item">
                     <i class="bi bi-box-arrow-right"></i> Cerrar sesión
                 </a>
             </li>
@@ -96,6 +96,6 @@
 {% endblock %}
 
 {% block extra_js %}
-    <!-- Scripts adicionales para esta vista -->
-    <!-- <script src="{% static 'js/dashboard.js' %}"></script> -->
+    <!-- Script adicional para esta vista -->
+    <!-- <script src="{% static 'js/dashboard-script.js' %}"></script> -->
 {% endblock %}
