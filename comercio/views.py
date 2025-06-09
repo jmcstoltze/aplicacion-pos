@@ -11,3 +11,6 @@ from .services import (
     editar_producto,
     eliminar_producto
 )
+
+def edicion_productos(request) -> HttpResponse | HttpResponseRedirect:
+    pass

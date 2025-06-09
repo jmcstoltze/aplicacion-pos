@@ -18,15 +18,13 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from usuarios.views import (
-    inicio_sesion,
-    dashboard,
-    cerrar_sesion
-)
+from usuarios.views import inicio_sesion, dashboard, cerrar_sesion
+from comercio.views import edicion_productos
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', inicio_sesion, name="inicio_sesion"),
     path('dashboard/', dashboard, name="dashboard"),
-    path('logout/', cerrar_sesion, name="cerrar_sesion")
+    path('logout/', cerrar_sesion, name="cerrar_sesion"),
+    path('productos/', edicion_productos, name="edicion_productos")
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

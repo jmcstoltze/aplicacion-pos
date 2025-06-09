@@ -1,6 +1,8 @@
+import os
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import transaction, models
+from django.conf import settings
 from .models import Producto, Categoria
 
 def obtener_productos():
@@ -14,6 +16,38 @@ def obtener_categorias():
     Obtiene todas las categorías disponibles
     """
     return Categoria.objects.all()
+
+def guardar_imagen_producto(imagen, sku):
+    """
+    Guarda la imagen del producto en el sistema de archivos
+    y devuelve la ruta relativa para almacenar en la DB
+    
+    Args:
+        imagen: Archivo de imagen subido
+        sku: SKU del producto para nombrar el archivo
+        
+    Returns:
+        str: Ruta relativa donde se guardó la imagen
+    """
+    if not imagen:
+        return None
+    
+    # Crear directorio si no existe
+    upload_dir = os.path.join(settings.MEDIA_ROOT, 'productos')
+    os.makedirs(upload_dir, exist_ok=True)
+    
+    # Obtener extensión del archivo
+    ext = os.path.splitext(imagen.name)[1]
+    filename = f"producto_{sku}{ext}"
+    filepath = os.path.join(upload_dir, filename)
+    
+    # Guardar el archivo
+    with open(filepath, 'wb+') as destination:
+        for chunk in imagen.chunks():
+            destination.write(chunk)
+    
+    # Retornar ruta relativa para la DB
+    return os.path.join('productos', filename)
 
 def crear_producto(
         sku,

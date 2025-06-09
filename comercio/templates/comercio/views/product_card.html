@@ -5,10 +5,12 @@
         <div class="card-body">
             <h5 class="card-title">{{ producto.nombre_producto }}</h5>
             <p class="card-text">${{ producto.precio_venta }}</p>
-            <small class="text-muted">{{ producto.sku }}</small><br>
-            <small class="text-muted">SKU:</small><br>
-            <small class="text-muted">{{ producto.sku }}</small><br>
-            <small class="text-muted">Stock total: {{ producto.stock_total }} un.</small><br>                        
+
+            <small class="text-muted">abr: {{ producto.nombre_abreviado }}</small><br>
+            <small class="text-muted">cat: {{ producto.categoria.nombre_categoria }}</small><br>
+            <small class="text-muted">sku: {{ producto.sku }}</small><br>
+            <small class="text-muted">code: {{ producto.codigo_barra }}</small><br>
+            <small class="text-muted">{{ producto.disponible }}</small><br>                                   
 
             <div class="edit-buttons mt-2 d-none">
                 <button class="btn btn-sm btn-solid-orange" 

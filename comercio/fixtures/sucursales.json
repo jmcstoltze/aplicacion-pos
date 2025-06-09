@@ -1,0 +1,51 @@
+[
+    {
+        "model": "comercio.sucursal",
+        "pk": 1,
+        "fields": {
+            "nombre_sucursal": "Sucursal Centro",
+            "email": "contacto_centro@musichallstudio.com",
+            "telefono": "569 8765 4321",
+            "direccion": "Avenida Central 456",
+            "es_casa_matriz": true,
+            "comercio_id": 1,
+            "comuna": 284
+        }
+    },
+    {
+        "model": "comercio.sucursal",
+        "pk": 2,
+        "fields": {
+            "nombre_sucursal": "Sucursal Norte",
+            "email": "contacto_norte@musichallstudio.com",
+            "telefono": "569 8765 4321",
+            "direccion": "Avenida Norte 456",            
+            "comercio_id": 1,
+            "comuna": 262
+        }
+    },
+    {
+        "model": "comercio.sucursal",
+        "pk": 3,
+        "fields": {
+            "nombre_sucursal": "Sucursal Oriente",
+            "email": "contacto_oriente@musichallstudio.com",
+            "telefono": "569 8765 4321",
+            "direccion": "Avenida Oriente 456",            
+            "comercio_id": 1,
+            "comuna": 278
+        }
+    },
+    {
+        "model": "comercio.sucursal",
+        "pk": 4,
+        "fields": {
+            "nombre_sucursal": "Sucursal Sur",
+            "email": "contacto_sur@musichallstudio.com",
+            "telefono": "569 8765 4321",
+            "direccion": "Avenida Sur 456",            
+            "comercio_id": 1,
+            "comuna": 265
+        }
+    }
+]
