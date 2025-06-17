@@ -1,0 +1,50 @@
+[
+    {
+        "model": "usuarios.usuario",
+        "pk": 1,
+        "fields": {
+            "usuario": 2,
+            "rut": "16207968-9",
+            "nombres": "José Manuel",
+            "ap_paterno": "Contreras",
+            "ap_materno": "Stoltze",
+            "email": "jmcontreras.stoltze@gmail.com",
+            "telefono": "+569 9635 2539",
+            "direccion": "Av de Prueba 123 Depto 456",
+            "comuna": 275,
+            "rol": 1
+        }
+    },
+    {
+        "model": "usuarios.usuario",
+        "pk": 2,
+        "fields": {
+            "usuario": 3,
+            "rut": "12345678-9",
+            "nombres": "Pamela Alejandra",
+            "ap_paterno": "Martinez",
+            "ap_materno": "Rosales",
+            "email": "pamela.martinez@gmail.com",
+            "telefono": "+569 8888 7777",
+            "direccion": "Av de Prueba 456 Depto 789",
+            "comuna": 278,
+            "rol": 2
+        }
+    },
+    {
+        "model": "usuarios.usuario",
+        "pk": 3,
+        "fields": {
+            "usuario": 4,
+            "rut": "12123456-7",
+            "nombres": "Steven",
+            "ap_paterno": "Stevenson",
+            "ap_materno": "Robertson",
+            "email": "steven.robertson@gmail.com",
+            "telefono": "+569 6666 5555",
+            "direccion": "Av de Prueba 789",
+            "comuna": 277,
+            "rol": 3
+        }
+    }
+]
