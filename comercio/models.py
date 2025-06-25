@@ -102,7 +102,7 @@ class Sucursal(models.Model):
         default=True, # Activa por defecto
         verbose_name = "Activa",
         help_text="Indica si la sucursal está activa o no")
-    comercio_id = models.ForeignKey(
+    comercio = models.ForeignKey(
         Comercio, on_delete=models.PROTECT, # Eliminación protegida
         help_text="Comercio que lidera el conjunto de sucursales",
         related_name="comercio")
@@ -153,7 +153,7 @@ class Bodega(models.Model):
     es_principal = models.BooleanField(
         default=False, verbose_name = "Es principal",
         help_text="Indica si la bodega corresponde a la bodega principal")
-    sucursal_id =models.ForeignKey(
+    sucursal =models.ForeignKey(
         Sucursal, on_delete=models.SET_NULL, null=True) # Si se elimina la sucursal, la relación es NULL
     
     def __str__(self):
@@ -225,6 +225,7 @@ class Producto(models.Model):
     Attributes:
         sku (str): Código único de identificación del producto (requerido).
         codigo_barra (str): Código de barras del producto (requerido, único).
+        categoria_id (ForeignKey): Relación con la categoría a la que pertenece el producto.
         nombre_producto (str): Nombre completo del producto (requerido, único).
         nombre_abreviado (str): Nombre corto para mostrar en tickets/facturas (requerido, único).
         descripcion (str): Detalles adicionales del producto (requerido).
@@ -240,7 +241,7 @@ class Producto(models.Model):
     codigo_barra = models.CharField(
         max_length=150, null=False, blank=False, unique=True,
         help_text="Código de barras escaneable")
-    categoria = models.ForeignKey(Categoria, on_delete=models.PROTECT),
+    categoria = models.ForeignKey(Categoria, on_delete=models.PROTECT)
     nombre_producto = models.CharField(
         max_length=150, null=False, blank=False, unique=True,
         help_text="Nombre descriptivo del producto")
@@ -258,7 +259,7 @@ class Producto(models.Model):
         default=True,
         help_text="Disponibilidad del producto")
     imagen = models.ImageField(
-        upload_to='producto/%Y/%m/%d/',
+        upload_to='files_storage/productos/%Y/%m/%d/',
         null=True, blank=True,
         help_text="Imagen representativa del producto"
     )
