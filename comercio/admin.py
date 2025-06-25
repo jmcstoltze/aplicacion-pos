@@ -108,8 +108,8 @@ class BodegaInline(admin.TabularInline):
 @admin.register(Bodega)
 class BodegaAdmin(admin.ModelAdmin):
     list_display = ('nombre_bodega', 'sucursal_info', 'es_principal', 'comercio_info')
-    list_filter = ('es_principal', 'sucursal_id__comercio_id', 'sucursal_id')
-    search_fields = ('nombre_bodega', 'sucursal_id__nombre_sucursal')
+    list_filter = ('es_principal', 'sucursal__comercio', 'sucursal')
+    search_fields = ('nombre_bodega', 'sucursal__nombre_sucursal')
     actions = ['export_to_csv']
     
     fieldsets = (
@@ -117,21 +117,21 @@ class BodegaAdmin(admin.ModelAdmin):
             'fields': ('nombre_bodega', 'es_principal')
         }),
         ('Ubicación', {
-            'fields': ('sucursal_id',)
+            'fields': ('sucursal',)
         }),
     )
 
     def sucursal_info(self, obj):
-        return obj.sucursal_id.nombre_sucursal if obj.sucursal_id else "Sin sucursal"
+        return obj.sucursal.nombre_sucursal if obj.sucursal else "Sin sucursal"
     sucursal_info.short_description = 'Sucursal'
-    sucursal_info.admin_order_field = 'sucursal_id__nombre_sucursal'
+    sucursal_info.admin_order_field = 'sucursal__nombre_sucursal'
 
     def comercio_info(self, obj):
-        if obj.sucursal_id and obj.sucursal_id.comercio_id:
-            return obj.sucursal_id.comercio_id.nombre_comercio
+        if obj.sucursal and obj.sucursal.comercio_id:
+            return obj.sucursal.comercio.nombre_comercio
         return "Sin comercio"
     comercio_info.short_description = 'Comercio'
-    comercio_info.admin_order_field = 'sucursal_id__comercio_id__nombre_comercio'
+    comercio_info.admin_order_field = 'sucursal__comercio__nombre_comercio'
 
     def export_to_csv(self, request, queryset):
         response = HttpResponse(content_type='text/csv')
@@ -145,8 +145,8 @@ class BodegaAdmin(admin.ModelAdmin):
             writer.writerow([
                 bodega.nombre_bodega,
                 'Sí' if bodega.es_principal else 'No',
-                bodega.sucursal_id.nombre_sucursal if bodega.sucursal_id else '',
-                bodega.sucursal_id.comercio_id.nombre_comercio if bodega.sucursal_id else ''
+                bodega.sucursal.nombre_sucursal if bodega.sucursal else '',
+                bodega.sucursal.comercio.nombre_comercio if bodega.sucursal else ''
             ])
 
         return response
@@ -256,10 +256,11 @@ class ProductoAdmin(admin.ModelAdmin):
 @admin.register(StockBodega)
 class StockBodegaAdmin(admin.ModelAdmin):
     list_display = ('producto_info', 'bodega_info', 'stock', 'comercio_info')
-    list_filter = ('bodega__sucursal_id__comercio_id', 'bodega')
+    list_filter = ('bodega__sucursal__comercio', 'bodega')
     search_fields = ('producto__nombre_producto', 'producto__sku', 'bodega__nombre_bodega')
     list_editable = ('stock',)
     actions = ['export_to_csv']
+    list_select_related = ('producto', 'bodega__sucursal__comercio')
     
     def producto_info(self, obj):
         return f"{obj.producto.nombre_abreviado} (SKU: {obj.producto.sku})"
@@ -272,11 +273,14 @@ class StockBodegaAdmin(admin.ModelAdmin):
     bodega_info.admin_order_field = 'bodega__nombre_bodega'
 
     def comercio_info(self, obj):
-        if obj.bodega.sucursal_id and obj.bodega.sucursal_id.comercio_id:
-            return obj.bodega.sucursal_id.comercio_id.nombre_comercio
+        try:
+            if obj.bodega.sucursal and obj.bodega.sucursal.comercio:
+                return obj.bodega.sucursal.comercio.nombre_comercio
+        except AttributeError:
+            pass
         return "Sin comercio"
     comercio_info.short_description = 'Comercio'
-    comercio_info.admin_order_field = 'bodega__sucursal_id__comercio_id__nombre_comercio'
+    comercio_info.admin_order_field = 'bodega__sucursal__comercio__nombre_comercio'
 
     def export_to_csv(self, request, queryset):
         response = HttpResponse(content_type='text/csv')
@@ -287,12 +291,25 @@ class StockBodegaAdmin(admin.ModelAdmin):
         writer.writerow(['Producto', 'SKU', 'Bodega', 'Sucursal', 'Comercio', 'Stock'])
 
         for stock in queryset:
+
+            # Manejo seguro de relaciones
+            sucursal_nombre = ''
+            comercio_nombre = ''
+
+            try:
+                if stock.bodega.sucursal:
+                    sucursal_nombre = stock.bodega.sucursal.nombre_sucursal
+                    if stock.bodega.sucursal.comercio:
+                        comercio_nombre = stock.bodega.sucursal.comercio.nombre_comercio
+            except AttributeError:
+                pass
+
             writer.writerow([
                 stock.producto.nombre_producto,
                 stock.producto.sku,
                 stock.bodega.nombre_bodega,
-                stock.bodega.sucursal_id.nombre_sucursal if stock.bodega.sucursal_id else '',
-                stock.bodega.sucursal_id.comercio_id.nombre_comercio if stock.bodega.sucursal_id else '',
+                sucursal_nombre,
+                comercio_nombre,
                 stock.stock
             ])
 

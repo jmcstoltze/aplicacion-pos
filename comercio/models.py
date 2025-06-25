@@ -105,7 +105,7 @@ class Sucursal(models.Model):
     comercio = models.ForeignKey(
         Comercio, on_delete=models.PROTECT, # Eliminación protegida
         help_text="Comercio que lidera el conjunto de sucursales",
-        related_name="comercio")
+        related_name="sucursales")
     comuna = models.ForeignKey(
         Comuna, on_delete=models.PROTECT, # Eliminación protegida
         help_text="Comuna de la dirección de la sucursal",
@@ -154,15 +154,20 @@ class Bodega(models.Model):
         default=False, verbose_name = "Es principal",
         help_text="Indica si la bodega corresponde a la bodega principal")
     sucursal =models.ForeignKey(
-        Sucursal, on_delete=models.SET_NULL, null=True) # Si se elimina la sucursal, la relación es NULL
+        Sucursal,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='bodegas'
+    )
     
     def __str__(self):
         """Representación legible de la bodega incluyendo su estado principal y sucursal."""
         principal_str = " [PRINCIPAL]" if self.es_principal else ""
+        sucursal_str = ""
 
-        if self.sucursal_id:
-            sucursal_str = f" - {self.sucursal_id.nombre_sucursal}"
-            if self.sucursal_id.es_casa_matriz:
+        if self.sucursal:
+            sucursal_str = f" - {self.sucursal.nombre_sucursal}"
+            if self.sucursal.es_casa_matriz:
                 sucursal_str += " (CASA MATRIZ)"
             else:
                 sucursal_str = " - Sin sucursal"
@@ -172,7 +177,7 @@ class Bodega(models.Model):
     class Meta:
         verbose_name = "Bodega"
         verbose_name_plural = "Bodegas"
-        ordering = ['sucursal_id__nombre_sucursal', '-es_principal', 'nombre_bodega']
+        ordering = ['sucursal__nombre_sucursal', '-es_principal', 'nombre_bodega']
 
 # Representa la categoría del productos dentro de la tienda
 class Categoria(models.Model):
