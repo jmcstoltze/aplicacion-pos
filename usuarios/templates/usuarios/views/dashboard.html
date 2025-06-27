@@ -23,18 +23,31 @@
                 </ul>
             </li>
         
-            <!-- Inventario con submenú -->
+            <!-- Inventario con submenú - Solo para Jefe de Local y Administrador -->
+            
+            {% if request.user.usuario.rol.nombre_rol == 'Administrador' or request.user.usuario.rol.nombre_rol == 'Jefe de local' %}
             <li class="has-submenu">
                 <a href="#" class="submenu-toggle">
                     <i class="bi bi-box-seam"></i> Inventario
                     <i class="bi bi-chevron-down submenu-indicator"></i>
                 </a>
                 <ul class="submenu">
-                    <li><a href="#"><i class="bi bi-pencil-square"></i> Editar productos</a></li>
+
+                    <!-- Editar productos - Solo para Administrador -->
+                    {% if request.user.usuario.rol.nombre_rol == 'Administrador' %} 
+                    <li><a href="{% url 'edicion_productos' %}"><i class="bi bi-pencil-square"></i> Editar productos</a></li>
+                    {% endif %}
+
+                    <!-- Editar stock - Disponible para ammbos roles -->
                     <li><a href="#"><i class="bi bi-box-arrow-in-down"></i> Editar stock</a></li>
+
+                    <!-- Editar promociones - Solo para Administrador -->
+                    {% if request.user.usuario.rol.nombre_rol == 'Administrador' %} 
                     <li><a href="#"><i class="bi bi-percent"></i> Editar promociones</a></li>
+                    {% endif %}
                 </ul>
             </li>
+            {% endif %}
         
             <!-- Clientes con submenú -->
             <li class="has-submenu">

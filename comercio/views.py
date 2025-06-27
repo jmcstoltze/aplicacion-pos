@@ -12,5 +12,7 @@ from .services import (
     eliminar_producto
 )
 
+@login_required
 def edicion_productos(request) -> HttpResponse | HttpResponseRedirect:
-    pass
+    return render(request, 'comercio/views/productos_edit.html', {})
+

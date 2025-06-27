@@ -1,16 +1,18 @@
-{% extends "comercio/base.html" %}
+{% extends "usuarios/base.html" %}
 {% load static %}
 
 {% block content %}
     <!-- Navbar -->
     <nav class="navbar navbar-expand navbar-dark bg-dark" style="display: block; flex-wrap: nowrap;">
         <div class="container-fluid">
-            <button class="btn btn-dark" onclick="toggleMenu()">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+                        
+            <!-- Botón de flecha para volver atrás -->
+            <a class="btn btn-dark" href="{% url 'dashboard' %}">
+                <i class="bi bi-arrow-left-circle"></i>
+            </a>
 
             <div class="mx-auto text-white d-none d-md-block">
-                <span class="h5" style="text-decoration: underline;">{% block page_title %}Dashboard{% endblock %}</span>
+                <span class="h5" style="text-decoration: underline;">{% block page_title %}Productos{% endblock %}</span>
             </div>
 
             <ul class="navbar-nav ms-auto">
@@ -22,7 +24,7 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
                         {{ request.user.usuario.ap_paterno }}
-                        {{ request.user.usuario.ap_materno }}
+                        {{ request.user.usuario.ap_materno }}, 
                         {{ request.user.usuario.nombres }}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
@@ -44,8 +46,8 @@
 
     <!-- Contenido Principal -->
     <div class="container-fluid">
-        {% block dashboard_content %}
-        <!-- El contenido específico de cada vista irá aquí -->
+        {% block productos_content %}
+        <!-- Contenido de Edición de productos -->
         {% endblock %}
     </div>
 
