@@ -281,7 +281,7 @@ class Producto(models.Model):
     class Meta:
         verbose_name = "Producto"
         verbose_name_plural = "Productos"
-        ordering = ['nombre_producto']  # Orden alfabético por defecto
+        ordering = ['categoria']  # Orden alfabético por defecto
 
 # Representa el stock disponible en cada bodega
 class StockBodega(models.Model):

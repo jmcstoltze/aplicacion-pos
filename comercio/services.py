@@ -9,7 +9,7 @@ def obtener_productos():
     """
     Obtiene todos los productos
     """
-    return Producto.objects.all()
+    return Producto.objects.filter(disponible=True) # Retorna sólo productos disponibles
 
 def obtener_categorias():
     """

@@ -26,5 +26,13 @@ urlpatterns = [
     path('', inicio_sesion, name="inicio_sesion"),
     path('dashboard/', dashboard, name="dashboard"),
     path('logout/', cerrar_sesion, name="cerrar_sesion"),
-    path('productos/', edicion_productos, name="edicion_productos")
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    path('edicion-productos/', edicion_productos, name="edicion_productos")
+]
+#+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+# Configuración para archivos estáticos y multimedia
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+

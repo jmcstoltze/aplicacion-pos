@@ -27,7 +27,6 @@ document.addEventListener('click', function(event) {
     }
 });
 
-
 // Función para manejar los submenús
 document.querySelectorAll('.submenu-toggle').forEach(item => {
     item.addEventListener('click', function(e) {
@@ -42,6 +41,19 @@ document.querySelectorAll('.submenu-toggle').forEach(item => {
         }
     });
 });
+});
+
+// Función para filtros de categorías
+document.getElementById('branchSelect').addEventListener('change', function() {
+    // Opción 1: Enviar el formulario automáticamente
+    //this.form.submit();
+    
+    // Opción 2: Filtrar con AJAX (más avanzado)
+    fetch(`?categoria=${this.value}`)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('productos-container').innerHTML = html;
+        });
 });
 
 // Función para habilitar/deshabilitar el modo edición

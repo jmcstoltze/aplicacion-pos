@@ -1,0 +1,93 @@
+{% extends "comercio/nav_bar.html" %}
+{% load static %}
+
+{% block products_content %}
+
+<!-- Barra de búsqueda y filtros -->
+<div class="container-fluid bg-light py-2 shadow-sm">
+    <div class="row align-items-center">
+        <!-- Buscador -->
+        <div class="col-md-6 mb-2 mb-md-0">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Buscar por nombre o SKU..." id="searchInput">
+                <button class="btn btn-solid-orange" type="button" id="searchButton">
+                    <i class="bi bi-search"></i> Buscar
+                </button>
+            </div>
+        </div>
+    
+        <!-- Filtro por categoría -->            
+        <div class="col-md-4">
+            <form method="get" id="categoriaForm">
+                <select class="form-select" id="branchSelect"name="categoria" onchange="document.getElementById('categoriaForm').submit()">
+                    <option value="all" {% if not categoria_seleccionada or categoria_seleccionada == 'all' %}selected{% endif %}>Todas las categorías</option>
+                    {% for categoria in categorias %}
+                        <option value="{{ categoria.id }}" {% if categoria_seleccionada == categoria.id|stringformat:"s" %}selected{% endif %}>{{ categoria.nombre_categoria }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+    
+        <!-- Contador de resultados -->
+        <div class="col-md-2 text-md-end">
+            <small class="text-muted" id="resultCount">{{ productos|length }} productos</small>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid mt-4">
+<!-- Botones flotantes para acciones -->
+<div class="action-buttons">
+
+    <button class="btn btn-solid-orange btn-circle mb-4" data-bs-toggle="modal" data-bs-target="#addProductModal">
+        <i class="bi bi-plus-lg"></i>
+    </button>
+    
+    <button class="btn btn-black-edit btn-circle" onclick="enableEditMode()">
+        <i class="bi bi-pencil"></i>
+    </button>            
+</div>
+
+<!-- Grid de productos -->        
+<div id="productos-container" class="row justify-content-center row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-4 row-cols-xl-5 g-1">
+    {% for producto in productos %}
+    <!-- Tarjeta de producto -->
+    <div class="col">
+        <div class="card product-card h-100">
+
+            {% if producto.imagen %}
+            <img src="{{ producto.imagen.url }}" class="card-img-top product-img" alt="{{ producto.nombre_producto }}">
+            {% else %}
+            <div class="no-image-placeholder">
+                <i class="bi bi-image text-muted"></i>
+            </div>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ producto.nombre_producto }}</h5>                
+                {% load custom_filters %}
+                <p class="card-text">Precio: ${{ producto.precio_venta|punto_miles }}</p>
+                <small class="text-muted">Categoría: {{ producto.categoria.nombre_categoria }}</small><br>
+                <small class="text-muted">Code: {{ producto.codigo_barra }}</small><br>
+                <small class="text-muted">Sku: {{ producto.sku }}</small><br>
+                
+                <div class="edit-buttons mt-2 d-none">
+                    <button class="btn btn-sm btn-solid-orange" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#editProductModal" 
+                        onclick="loadProductData('{{ producto.sku }}')">
+                    Editar
+                    </button>
+                    <button class="btn btn-sm btn-black-edit">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<br><br>
+
+<!-- Aquí van los modales -->
+
+</div>
+
+{% endblock %}

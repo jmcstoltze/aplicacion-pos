@@ -35,7 +35,7 @@
                         <li><p class="dropdown-item">{{ request.user.usuario.telefono }}</p></li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
-                            <a id="logoutLink" class="dropdown-item logout-btn" href="#" data-logout-url="{% url 'cerrar_sesion' %}">Cerrar sesión <i class="bi bi-arrow-right-circle"></i>
+                            <a id="logoutLink" class="dropdown-item logout-btn" href="{% url 'cerrar_sesion' %}" data-logout-url="{% url 'cerrar_sesion' %}">Cerrar sesión <i class="bi bi-arrow-right-circle"></i>
                             </a>
                         </li>
                     </ul>
@@ -44,19 +44,10 @@
         </div>
     </nav>
 
-    <!-- Contenido Principal -->
-    <div class="container-fluid">
-        {% block productos_content %}
-        <!-- Contenido de Edición de productos -->
-        {% endblock %}
-    </div>
-
-    <!-- Footer -->
-    <footer class="footer mt-auto py-2 footer-custom">
-        <div class="container-fluid text-center">
-            <small>© <span id="year"></span> Sistema POS. Todos los derechos reservados.</small>
-        </div>
-    </footer>
+    <!-- Contenido de la vista -->
+    {% block products_content %}
+    <!-- Contenido de edición de productos, filtros, búsqueda y edición  -->
+    {% endblock %}
 
     <!-- Scripts específicos del dashboard -->
     <script src="{% static 'js/script.js' %}"></script>
