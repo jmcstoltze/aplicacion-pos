@@ -45,15 +45,32 @@ document.querySelectorAll('.submenu-toggle').forEach(item => {
 
 // Función para filtros de categorías
 document.getElementById('branchSelect').addEventListener('change', function() {
-    // Opción 1: Enviar el formulario automáticamente
-    //this.form.submit();
     
-    // Opción 2: Filtrar con AJAX (más avanzado)
+    // Filtrar con AJAX
     fetch(`?categoria=${this.value}`)
         .then(response => response.text())
         .then(html => {
             document.getElementById('productos-container').innerHTML = html;
         });
+});
+
+// Función para búsqueda en edición de productos
+document.getElementById('searchInput').addEventListener('input', function(e) {
+    const searchTerm = e.target.value;
+    
+    // Cancelar peticiones anteriores si existe
+    if (this.searchTimeout) {
+        clearTimeout(this.searchTimeout);
+    }
+    
+    // Esperar 300ms después de que el usuario deja de escribir
+    this.searchTimeout = setTimeout(() => {
+        fetch(`?search=${encodeURIComponent(searchTerm)}&ajax=1`)
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('productos-container').innerHTML = html;
+            });
+    }, 300);
 });
 
 // Función para habilitar/deshabilitar el modo edición

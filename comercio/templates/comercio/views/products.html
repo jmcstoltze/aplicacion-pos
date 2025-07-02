@@ -8,12 +8,18 @@
     <div class="row align-items-center">
         <!-- Buscador -->
         <div class="col-md-6 mb-2 mb-md-0">
-            <div class="input-group">
-                <input type="text" class="form-control" placeholder="Buscar por nombre o SKU..." id="searchInput">
-                <button class="btn btn-solid-orange" type="button" id="searchButton">
-                    <i class="bi bi-search"></i> Buscar
-                </button>
-            </div>
+            <form method="get" action="">
+                <div class="input-group">
+                    <input type="text"
+                            class="form-control"
+                            placeholder="Buscar por nombre, SKU o Code..."
+                            name="search"
+                            value="{{ request.GET.search }}">
+                    <button class="btn btn-solid-orange" type="submit" id="searchButton">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
         </div>
     
         <!-- Filtro por categoría -->            
@@ -35,59 +41,120 @@
     </div>
 </div>
 
+<!-- Contenido principal -->
 <div class="container-fluid mt-4">
-<!-- Botones flotantes para acciones -->
-<div class="action-buttons">
+    <!-- Botones flotantes para acciones -->
+    <div class="action-buttons">
 
-    <button class="btn btn-solid-orange btn-circle mb-4" data-bs-toggle="modal" data-bs-target="#addProductModal">
-        <i class="bi bi-plus-lg"></i>
-    </button>
+        <button class="btn btn-solid-orange btn-circle mb-4" data-bs-toggle="modal" data-bs-target="#addProductModal">
+            <i class="bi bi-plus-lg"></i>
+        </button>
     
-    <button class="btn btn-black-edit btn-circle" onclick="enableEditMode()">
-        <i class="bi bi-pencil"></i>
-    </button>            
-</div>
+        <button class="btn btn-black-edit btn-circle" onclick="enableEditMode()">
+            <i class="bi bi-pencil"></i>
+        </button>            
+    </div>
 
-<!-- Grid de productos -->        
-<div id="productos-container" class="row justify-content-center row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-4 row-cols-xl-5 g-1">
+    <!-- Grid de productos -->        
+    <div id="productos-container" class="row justify-content-center row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-4 row-cols-xl-5 g-1">
     {% for producto in productos %}
-    <!-- Tarjeta de producto -->
-    <div class="col">
-        <div class="card product-card h-100">
+        <!-- Tarjeta de producto -->
+        <div class="col">
+            <div class="card product-card h-100">
 
-            {% if producto.imagen %}
-            <img src="{{ producto.imagen.url }}" class="card-img-top product-img" alt="{{ producto.nombre_producto }}">
-            {% else %}
-            <div class="no-image-placeholder">
-                <i class="bi bi-image text-muted"></i>
-            </div>
-            {% endif %}
-            <div class="card-body">
-                <h5 class="card-title">{{ producto.nombre_producto }}</h5>                
-                {% load custom_filters %}
-                <p class="card-text">Precio: ${{ producto.precio_venta|punto_miles }}</p>
-                <small class="text-muted">Categoría: {{ producto.categoria.nombre_categoria }}</small><br>
-                <small class="text-muted">Code: {{ producto.codigo_barra }}</small><br>
-                <small class="text-muted">Sku: {{ producto.sku }}</small><br>
+                {% if producto.imagen %}
+                <img src="{{ producto.imagen.url }}" class="card-img-top product-img" alt="{{ producto.nombre_producto }}">
+                {% else %}
+                <div class="no-image-placeholder">
+                    <i class="bi bi-image text-muted"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <br>
+                    <h5 class="card-title">{{ producto.nombre_producto }}</h5>                
+                    {% load custom_filters %}
+                    <p class="card-text">Precio: ${{ producto.precio_venta|punto_miles }}</p>
+                    <small class="text-muted">Categoría: {{ producto.categoria.nombre_categoria }}</small><br>
+                    <small class="text-muted">Code: {{ producto.codigo_barra }}</small><br>
+                    <small class="text-muted">SKU: {{ producto.sku }}</small><br>
                 
-                <div class="edit-buttons mt-2 d-none">
-                    <button class="btn btn-sm btn-solid-orange" 
-                        data-bs-toggle="modal" 
-                        data-bs-target="#editProductModal" 
-                        onclick="loadProductData('{{ producto.sku }}')">
-                    Editar
-                    </button>
-                    <button class="btn btn-sm btn-black-edit">Eliminar</button>
+                    <div class="edit-buttons mt-2 d-none">
+                        <button class="btn btn-sm btn-solid-orange" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#editProductModal" 
+                            onclick="loadProductData('{{ producto.sku }}')">
+                        Editar
+                        </button>
+                        <button class="btn btn-sm btn-black-edit">Eliminar</button>
+                    </div>
                 </div>
             </div>
         </div>
+        {% endfor %}
     </div>
-    {% endfor %}
+    <br><br>
 </div>
-<br><br>
 
-<!-- Aquí van los modales -->
-
+<!-- Modal para agregar producto -->
+<div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addProductModalLabel">Agregar Nuevo Producto</h5>
+                <button type="button" class="btn-close custom-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addProductForm" method="POST" action="" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="agregar_producto" value="1">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="sku" class="form-label">SKU</label>
+                            <input type="text" class="form-control" id="sku" name="sku" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="codigo_barra" class="form-label">Código de Barra</label>
+                            <input type="text" class="form-control" id="codigo_barra" name="codigo_barra" required>
+                        </div>                    
+                        <div class="mb-3">
+                            <label for="categoria" class="form-label">Categoría</label>
+                            <select class="form-select" id="categoria" name="categoria" required>
+                                <option value="">Seleccione una categoría</option>
+                                {% for categoria in categorias %}                                
+                                <option value="{{ categoria.id }}">{{ categoria.nombre_categoria }}</option>
+                                {% endfor %}                                
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="nombre_producto" class="form-label">Nombre del Producto</label>
+                            <input type="text" class="form-control" id="nombre_producto" name="nombre_producto" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="nombre_abreviado" class="form-label">Nombre Abreviado</label>
+                            <input type="text" class="form-control" id="nombre_abreviado" name="nombre_abreviado" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label">Descripción</label>
+                            <input type="text" class="form-control" id="descripcion" name="descripcion" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="precio_venta" class="form-label">Precio</label>
+                            <input type="text" class="form-control" id="precio_venta" name="precio_venta" required>
+                        </div>                        
+                        <div class="mb-3">
+                            <label for="imagen" class="form-label">Imagen del Producto</label>
+                            <input class="form-control" type="file" id="imagen" name="imagen">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-solid-orange" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-black-edit">Guardar Producto</button>
+                    </div>
+                </form>
+            </div>            
+        </div>
+    </div>
 </div>
+
 
 {% endblock %}
