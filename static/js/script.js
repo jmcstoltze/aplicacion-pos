@@ -180,3 +180,31 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    const logoutLink = document.getElementById('logoutLink2');
+
+    logoutLink.addEventListener('click', function (e) {
+        e.preventDefault(); // Evita la navegación inmediata
+
+        const confirmLogout = confirm("¿Está seguro de que desea cerrar sesión?");
+        if (confirmLogout) {
+            // Redirecciona manualmente al logout
+            window.location.href = logoutLink.getAttribute('data-logout-url');
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const logoutLink = document.getElementById('logoutLink3');
+
+    logoutLink.addEventListener('click', function (e) {
+        e.preventDefault(); // Evita la navegación inmediata
+
+        const confirmLogout = confirm("¿Está seguro de que desea cerrar sesión?");
+        if (confirmLogout) {
+            // Redirecciona manualmente al logout
+            window.location.href = logoutLink.getAttribute('data-logout-url');
+        }
+    });
+});

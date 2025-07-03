@@ -1,6 +1,6 @@
 from django.db import models
 from django.db import DatabaseError
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from decimal import Decimal, InvalidOperation
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -14,6 +14,7 @@ from .services import (
     obtener_categorias,
     crear_producto,    
     editar_producto,
+    deshabilitar_producto,
     listar_productos,
     eliminar_producto
 )
@@ -25,6 +26,27 @@ def edicion_productos(request) -> HttpResponse | HttpResponseRedirect:
         categoria = request.GET.get('categoria', None)
         search_query = request.GET.get('search', None)
         productos = obtener_productos()
+
+        # Manejo del formulario para deshabilitar o "eliminar" productos
+        if request.method == 'POST' and 'deshabilitar_producto' in request.POST:
+            try:
+                producto_id = request.POST.get('producto_id')
+                success, message = deshabilitar_producto(producto_id)
+
+                if success:
+                    messages.success(request, message)
+                else:
+                    messages.warning(request, message)
+
+                return redirect('edicion_productos')
+            
+            except ObjectDoesNotExist as e:
+                messages.error(request, str(e))
+                return redirect('edicion_productos')
+            except Exception as e:
+                messages.error(request, f'Error al deshabilitar producto: {str(e)}')
+                return redirect('edicion_productos')
+
 
         # Manejo del formulario de agregar producto
         if request.method == 'POST' and 'agregar_producto' in request.POST:

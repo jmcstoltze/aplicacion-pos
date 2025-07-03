@@ -35,7 +35,8 @@
                         <li><p class="dropdown-item">{{ request.user.usuario.telefono }}</p></li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
-                            <a id="logoutLink" class="dropdown-item logout-btn" href="{% url 'cerrar_sesion' %}" data-logout-url="{% url 'cerrar_sesion' %}">Cerrar sesión <i class="bi bi-arrow-right-circle"></i>
+                            <a id="logoutLink3" class="dropdown-item logout-btn" href="{% url 'cerrar_sesion' %}" data-logout-url="{% url 'cerrar_sesion' %}" onclick="return confirm('¿Está seguro de que desea cerrar sesión?')">
+                                Cerrar sesión <i class="bi bi-arrow-right-circle"></i>
                             </a>
                         </li>
                     </ul>

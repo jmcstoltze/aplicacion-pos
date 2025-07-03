@@ -342,6 +342,27 @@ def editar_producto(producto_id, imagen=None, **kwargs):
     except Exception as e:
         raise Exception(f"Error inesperado al editar producto: {str(e)}")
 
+def deshabilitar_producto(producto_id):
+    try:
+        with transaction.atomic():
+            producto = Producto.objects.get(pk=producto_id)
+
+            if not producto.disponible:
+                return False, "El producto ya está deshabilitado"
+            
+            producto.disponible = False
+            producto.save()
+
+            return True, "Producto deshabilitado correctamente"
+        
+    except ObjectDoesNotExist:
+        raise ObjectDoesNotExist(f"No se encontró el producto con ID {producto_id}")
+    except Exception as e:
+        raise Exception(f"Error inesperado al deshabilitar producto: {str(e)}")
+    
+
+
+
 def eliminar_producto(producto_id):
     """
     Elimina permanentemente un producto de la base de datos, incluyendo su imagen asociada.

@@ -106,7 +106,9 @@
                             Editar
                         </button>
                         <form method="post" action="" style="display: inline;">
-                            {% csrf_token %}
+                            {% csrf_token %}                            
+                            <input type="hidden" name="producto_id" value="{{ producto.id }}">
+                            <input type="hidden" name="deshabilitar_producto" value="true">
                             <button type="submit" class="btn btn-sm btn-black-edit" onclick="return confirm('¿Está seguro que desea que este producto no esté disponible?')">Eliminar</button>
                         </form>
                         

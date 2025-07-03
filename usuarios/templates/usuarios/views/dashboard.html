@@ -76,7 +76,7 @@
         
             <!-- Cerrar sesión -->
             <li>
-                <a id="logoutLink2" href="#" data-logout-url="{% url 'cerrar_sesion' %}" class="logout-menu-item">
+                <a id="logoutLink2" href="{% url 'cerrar_sesion' %}" data-logout-url="{% url 'cerrar_sesion' %}" class="logout-menu-item" onclick="return confirm('¿Está seguro de que desea cerrar sesión?')">
                     <i class="bi bi-box-arrow-right"></i> Cerrar sesión
                 </a>
             </li>
