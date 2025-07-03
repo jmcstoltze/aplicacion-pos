@@ -8,15 +8,17 @@ from .models import Producto, Categoria
 
 def obtener_productos():
     """
-    Obtiene todos los productos
+    Obtiene todos los productos disponibles ordenados por categoría y luego alfabéticamente por nombre
     """
-    return Producto.objects.filter(disponible=True) # Retorna sólo productos disponibles
+    # Retorna sólo productos disponibles y ordenados por categoría y alfabéticamente
+    # return Producto.objects.filter(disponible=True)
+    return Producto.objects.filter(disponible=True).order_by('categoria__nombre_categoria', 'nombre_producto')
 
 def obtener_categorias():
     """
-    Obtiene todas las categorías disponibles
+    Obtiene todas las categorías disponibles ordenadas alfabéticamente.
     """
-    return Categoria.objects.all()
+    return Categoria.objects.all().order_by('nombre_categoria')
 
 def guardar_imagen_producto(imagen, sku):
     """
@@ -262,7 +264,7 @@ def editar_producto(producto_id, imagen=None, **kwargs):
     try:
         with transaction.atomic():
             # Obtener el producto
-            producto = Producto.objects.get(pk=producto.id)
+            producto = Producto.objects.get(pk=producto_id)
 
             # Campos que no deben ser editados directamente
             campos_protegidos = ['created_at', 'updated_at']
@@ -316,8 +318,8 @@ def editar_producto(producto_id, imagen=None, **kwargs):
                     raise ValidationError("La imagen no puede superar los 2MB")
                 
                 # Eliminar la imagen anterior si existe
-                if producto.imagen:
-                    producto.imagen.delete(save=False)
+                # if producto.imagen:
+                    # producto.imagen.delete(save=False)
                 
                 # Guardar nueva imagen
                 ext = os.path.splitext(imagen.name)[1]

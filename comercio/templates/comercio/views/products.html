@@ -3,6 +3,16 @@
 
 {% block products_content %}
 
+<!-- Manejo de mensaje de error o éxito -->
+{% if messages %}
+    {% for message in messages %}
+        <script>
+            // Muestra un alert
+            alert("{{ message }}");
+        </script>
+    {% endfor %}
+{% endif %}
+
 <!-- Barra de búsqueda y filtros -->
 <div class="container-fluid bg-light py-2 shadow-sm">
     <div class="row align-items-center">
@@ -43,14 +53,14 @@
 
 <!-- Contenido principal - Cards de Productos -->
 <div class="container-fluid mt-4">
-    <!-- Botones flotantes para acciones -->
+    <!-- Botones flotantes para acciones agregar y editar -->
     <div class="action-buttons">
 
-        <button class="btn btn-solid-orange btn-circle mb-4" data-bs-toggle="modal" data-bs-target="#addProductModal">
+        <button class="btn btn-solid-orange btn-circle mb-3" data-bs-toggle="modal" data-bs-target="#addProductModal">
             <i class="bi bi-plus-lg"></i>
         </button>
     
-        <button class="btn btn-black-edit btn-circle" onclick="enableEditMode()">
+        <button class="btn btn-black-edit btn-circle me-3" onclick="enableEditMode()">
             <i class="bi bi-pencil"></i>
         </button>            
     </div>
@@ -61,14 +71,15 @@
         <!-- Tarjeta de producto -->
         <div class="col">
             <div class="card product-card h-100">
-
+                                
                 {% if producto.imagen %}
-                <img src="{{ producto.imagen.url }}" class="card-img-top product-img" alt="{{ producto.nombre_producto }}">
+                    <img src="{{ producto.imagen.url }}" class="card-img-top product-img" alt="{{ producto.nombre_producto }}">
                 {% else %}
-                <div class="no-image-placeholder">
-                    <i class="bi bi-image text-muted"></i>
-                </div>
-                {% endif %}
+                    <div class="no-image-placeholder">
+                        <i class="bi bi-image text-muted"></i>
+                    </div>
+                {% endif %}                
+
                 <div class="card-body">
                     <br>
                     <h5 class="card-title">{{ producto.nombre_producto }}</h5>                
@@ -82,10 +93,23 @@
                         <button class="btn btn-sm btn-solid-orange" 
                             data-bs-toggle="modal" 
                             data-bs-target="#editProductModal" 
-                            onclick="loadProductData('{{ producto.sku }}')">
-                        Editar
+                                onclick="loadProductData(
+                                    '{{ producto.id }}',
+                                    '{{ producto.sku|escapejs }}',
+                                    '{{ producto.codigo_barra|escapejs }}',
+                                    '{{ producto.categoria.id }}',
+                                    '{{ producto.nombre_producto|escapejs }}',
+                                    '{{ producto.nombre_abreviado|escapejs }}',
+                                    '{{ producto.descripcion|escapejs }}',
+                                    '{{ producto.precio_venta }}'                            
+                                )">
+                            Editar
                         </button>
-                        <button class="btn btn-sm btn-black-edit">Eliminar</button>
+                        <form method="post" action="" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-black-edit" onclick="return confirm('¿Está seguro que desea que este producto no esté disponible?')">Eliminar</button>
+                        </form>
+                        
                     </div>
                 </div>
             </div>
@@ -110,11 +134,11 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="productSKU" class="form-label">SKU</label>
-                            <input type="text" class="form-control" id="productSKU" name="productSKU" required>
+                            <input type="text" class="form-control" id="productSKU" name="productSKU" maxlength="80" required>
                         </div>
                         <div class="mb-3">
                             <label for="productCode" class="form-label">Código de Barra</label>
-                            <input type="text" class="form-control" id="productCode" name="productCode" required>
+                            <input type="text" class="form-control" id="productCode" name="productCode" maxlength="150" required>
                         </div>                    
                         <div class="mb-3">
                             <label for="productCategory" class="form-label">Categoría</label>
@@ -127,19 +151,21 @@
                         </div>
                         <div class="mb-3">
                             <label for="productName" class="form-label">Nombre del Producto</label>
-                            <input type="text" class="form-control" id="productName" name="productName" required>
+                            <input type="text" class="form-control" id="productName" name="productName" maxlength="150" required>
                         </div>
                         <div class="mb-3">
                             <label for="productAbrName" class="form-label">Nombre Abreviado</label>
-                            <input type="text" class="form-control" id="productAbrName" name="productAbrName" required>
+                            <input type="text" class="form-control" id="productAbrName" name="productAbrName" maxlength="80" required>
                         </div>
                         <div class="mb-3">
                             <label for="productDescp" class="form-label">Descripción</label>
-                            <input type="text" class="form-control" id="productDescp" name="productDescp" required>
+                            <!--
+                            <input type="text" class="form-control" id="productDescp" name="productDescp" maxlength="250" required> -->
+                            <textarea class="form-control" id="productDescp" name="productDescp" rows="5" maxlength="250" required></textarea>
                         </div>
                         <div class="mb-3">
                             <label for="productPrice" class="form-label">Precio</label>
-                            <input type="text" class="form-control" id="productPrice" name="productPrice" required maxlength="12">
+                            <input type="text" class="form-control" id="productPrice" name="productPrice" maxlength="12" required>
                         </div>                        
                         <div class="mb-3">
                             <label for="productImage" class="form-label">Imagen del Producto</label>
@@ -165,12 +191,11 @@
                 <button type="button" class="btn-close custom-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="editProductForm" method="POST" enctype="multipart/form-data">
+                <form id="editProductForm" method="POST" action="" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="hidden" name="editar_producto" value="1">
                     <input type="hidden" id="editProductId" name="product_id">
-                    <div class="modal-body">
-                        <!-- Sólo lectura -->
+                    <div class="modal-body">                        
                         <div class="mb-3">
                             <label for="editProductSKU" class="form-label">SKU</label>
                             <input type="text" class="form-control" id="editProductSKU" required readonly>
@@ -178,8 +203,7 @@
                         <div class="mb-3">
                             <label for="editProductCode" class="form-label">Código de Barra</label>
                             <input type="text" class="form-control" id="editProductCode" required readonly>
-                        </div>
-                        <!-- Campo de Categoría -->
+                        </div>                    
                         <div class="mb-3">
                             <label for="editProductCategory" class="form-label">Categoría</label>
                             <select class="form-select" id="editProductCategory" name="editProductCategory" required>
@@ -199,7 +223,9 @@
                         </div>
                         <div class="mb-3">
                             <label for="editProductDescp" class="form-label">Descripción</label>
-                            <input type="text" class="form-control" id="editProductDescp" name="editProductProductDescp" required>
+                            <!--
+                            <input type="text" class="form-control" id="editProductDescp" name="editProductDescp" required> -->
+                            <textarea class="form-control" id="editProductDescp" name="editProductDescp" rows="5" maxlength="250" required></textarea>
                         </div>
                         <div class="mb-3">
                             <label for="editProductPrice" class="form-label">Precio</label>
@@ -207,12 +233,12 @@
                         </div>                                                
                         <div class="mb-3">
                             <label for="editProductImage" class="form-label">Imagen del Producto</label>
-                            <input class="form-control" type="text" id="editProductImage" name="editProductImage">
-                        </div>
+                            <input class="form-control" type="file" id="editProductImage" name="editProductImage" accept="image/*">
+                        </div>                        
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-solid-orange px-4 py-2" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-black-edit px-4 py-2">Guardar Cambios</button>
+                        <button type="submit" class="btn btn-black-edit px-4 py-2">Guardar Cambios</button>
                     </div>
                 </form>                
             </div>            

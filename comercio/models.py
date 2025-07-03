@@ -221,6 +221,7 @@ class Categoria(models.Model):
     class Meta:
         verbose_name = "Categoría"
         verbose_name_plural = "Categorías"
+        ordering = ['nombre_categoria']
 
 # Representa a los productos asociados a las sucursales y las bodegas, y que se transan en las cajas o puntos de venta
 class Producto(models.Model):
@@ -281,7 +282,8 @@ class Producto(models.Model):
     class Meta:
         verbose_name = "Producto"
         verbose_name_plural = "Productos"
-        ordering = ['categoria']  # Orden alfabético por defecto
+        # ordering = ['categoria']  # Orden alfabético por defecto
+        ordering = ['categoria__nombre_categoria', 'nombre_producto']  # Orden por categoría y luego alfabético
 
 # Representa el stock disponible en cada bodega
 class StockBodega(models.Model):

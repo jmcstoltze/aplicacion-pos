@@ -82,29 +82,53 @@ function enableEditMode() {
 }
 
 // Función para cargar datos del producto en el modal de edición
-function loadProductData(productId) {
-    fetch(`/get_product_data/${productId}/`)
-        .then(response => response.json())
-        .then(data => {
-            // Llenar el formulario con los datos del producto
-            document.getElementById('editProductId').value = data.id;
-            document.getElementById('editProductSKU').value = data.sku;
-            document.getElementById('editProductCode').value = data.codigo_barra;
-            document.getElementById('editProductCategory').value = data.categoria_id;
-            document.getElementById('editProductName').value = data.nombre_producto;
-            document.getElementById('editProductAbrName').value = data.nombre_abreviado;
-            document.getElementById('editProductDescp').value = data.descripcion;
-            document.getElementById('editProductPrice').value = data.precio_venta;
-            
-            // Mostrar el modal
-            const editModal = new bootstrap.Modal(document.getElementById('editProductModal'));
-            editModal.show();
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error al cargar los datos del producto');
-        });
+function loadProductData(id, sku, codigo_barra, categoria_id, nombre_producto, nombre_abreviado, descripcion, precio_venta) {
+    // Llenar el formulario con los datos del producto
+    document.getElementById('editProductId').value = id;
+    document.getElementById('editProductSKU').value = sku;
+    document.getElementById('editProductCode').value = codigo_barra;
+    document.getElementById('editProductCategory').value = categoria_id;
+    document.getElementById('editProductName').value = nombre_producto;
+    document.getElementById('editProductAbrName').value = nombre_abreviado;
+    document.getElementById('editProductDescp').value = descripcion;
+    // document.getElementById('editProductPrice').value = precio_venta;
+
+    // Formatear precio sin decimales
+    const precioSinDecimales = parseFloat(precio_venta).toFixed(0);
+    document.getElementById('editProductPrice').value = precioSinDecimales;
 }
+
+// Manejar envío del formulario de edición
+document.getElementById('editProductForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const submitButton = this.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
+    
+    fetch(this.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        }
+    })
+    .then(response => {
+        if (response.redirected) {
+            window.location.href = response.url;
+        }
+        return response;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al actualizar el producto: ' + error.message);
+    })
+    .finally(() => {
+        submitButton.disabled = false;
+        submitButton.innerHTML = 'Guardar Cambios';
+    });
+});
 
 // Manejar envío del formulario de edición
 document.getElementById('editProductForm').addEventListener('submit', function(e) {
@@ -145,20 +169,6 @@ document.getElementById('year').textContent = new Date().getFullYear();
 
 document.addEventListener('DOMContentLoaded', function () {
     const logoutLink = document.getElementById('logoutLink');
-
-    logoutLink.addEventListener('click', function (e) {
-        e.preventDefault(); // Evita la navegación inmediata
-
-        const confirmLogout = confirm("¿Está seguro de que desea cerrar sesión?");
-        if (confirmLogout) {
-            // Redirecciona manualmente al logout
-            window.location.href = logoutLink.getAttribute('data-logout-url');
-        }
-    });
-});
-
-document.addEventListener('DOMContentLoaded', function () {
-    const logoutLink = document.getElementById('logoutLink2');
 
     logoutLink.addEventListener('click', function (e) {
         e.preventDefault(); // Evita la navegación inmediata

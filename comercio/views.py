@@ -12,9 +12,9 @@ from .models import Producto
 from .services import (
     obtener_productos,
     obtener_categorias,
-    crear_producto,
-    listar_productos,
+    crear_producto,    
     editar_producto,
+    listar_productos,
     eliminar_producto
 )
 
@@ -53,13 +53,16 @@ def edicion_productos(request) -> HttpResponse | HttpResponseRedirect:
                 )
                 messages.success(request, 'Producto agregado exitosamente')
 
+                return redirect('edicion_productos') # Redirige a la misma vista
                 # Recargar los productos después de agregar uno nuevo
-                productos = obtener_productos()
+                # productos = obtener_productos()
             
             except ValidationError as e:
                 messages.error(request, f'Error de validación: {str(e)}')
+                return redirect('edicion_productos')
             except Exception as e:
                 messages.error(request, f'Error al guardar producto: {str(e)}')
+                return redirect('edicion_productos')
 
         # Manejor del formulario de edición de producto
         if request.method == 'POST' and 'editar_producto' in request.POST:
@@ -90,12 +93,15 @@ def edicion_productos(request) -> HttpResponse | HttpResponseRedirect:
                 )
 
                 messages.success(request, 'Producto actualizado exitosamente')
-                productos = obtener_productos()
+                return redirect('edicion_productos')
+                # productos = obtener_productos()
             
             except ValidationError as e:
                 messages.error(request, f'Error de validación: {str(e)}')
+                return redirect('edicion_productos')
             except Exception as e:
                 messages.error(request, f'Error al actualizar producto: {str(e)}')
+                return redirect('edicion_productos')
 
         # Filtrar por categoría si se especifica
         if categoria and categoria != 'all':
@@ -117,7 +123,7 @@ def edicion_productos(request) -> HttpResponse | HttpResponseRedirect:
             'search_query': search_query
         }
         return render(request, 'comercio/views/products.html', context)
-    except DatabaseError:
+    except DatabaseError as e:
         return render(request, 'error.html', {'message': 'Error al cargar productos'})
     
 
