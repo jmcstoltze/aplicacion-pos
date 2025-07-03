@@ -202,5 +202,39 @@
             "created_at": "2025-06-30T14:00:00Z",
             "updated_at": "2025-06-30T14:30:00Z"
         }
+    },
+    {
+        "model": "comercio.producto",
+        "pk": 13,
+        "fields": {
+            "sku": "PED-BOS-ME80",
+            "codigo_barra": "0056564321396",
+            "categoria_id": 4,
+            "nombre_producto": "Pedalera de efectos BOSS ME-80",
+            "nombre_abreviado": "Pedal BOSS ME80",
+            "descripcion": "Pedalera multiefectos con 8 secciones de efectos simultáneos (distorsión, modulación, delay, reverb, etc.). Interface intuitiva con controles físicos, expresión integrado, loop de fraseo y salida USB para grabación. Ideal para guitarristas en vivo.",
+            "precio_venta": 899000,
+            "disponible": true,
+            "imagen": "files_storage/productos/2025/07/02/producto_14.png",
+            "created_at": "2025-07-02T10:00:00Z",
+            "updated_at": "2025-07-02T10:30:00Z"
+        }
+    },
+    {
+        "model": "comercio.producto",
+        "pk": 14,
+        "fields": {
+            "sku": "TEC-YMH-P125",
+            "codigo_barra": "0056564321426",
+            "categoria_id": 1,
+            "nombre_producto": "Teclado Yamaha P-125",
+            "nombre_abreviado": "Teclado Ymha P125",
+            "descripcion": "Piano digital con teclado GHS con sensibilidad al tacto, 88 teclas. Sonidos de concierto Yamaha CFIIIS, 24 voces de polifonía, sistema de altavoces estéreo. Incluye pedal sostenuto, conexión USB y app de control. Ideal para práctica y presentaciones.",
+            "precio_venta": 1499000,
+            "disponible": true,
+            "imagen": "files_storage/productos/2025/07/02/producto_15.png",
+            "created_at": "2025-07-02T10:00:00Z",
+            "updated_at": "2025-07-02T10:30:00Z"
+        }
     }
 ]

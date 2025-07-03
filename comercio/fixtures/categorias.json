@@ -25,5 +25,14 @@
             "descripcion": "Equipamiento para estudios de grabación.",
             "created_at": "2025-06-15T15:00:00Z"
         }
+    },
+    {
+        "model": "comercio.categoria",
+        "pk": 4,
+        "fields": {
+            "nombre_categoria": "Multiefectos",
+            "descripcion": "Pedales de efectos y multiefectos",
+            "created_at": "2025-06-15T15:00:00Z"
+        }
     }
 ]

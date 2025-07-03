@@ -1,6 +1,7 @@
 from django.db import models
 from django.db import DatabaseError
 from django.core.exceptions import ValidationError
+from decimal import Decimal, InvalidOperation
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import logout
@@ -20,41 +21,85 @@ from .services import (
 @login_required
 def edicion_productos(request) -> HttpResponse | HttpResponseRedirect:
     try:
+
+        categoria = request.GET.get('categoria', None)
+        search_query = request.GET.get('search', None)
+        productos = obtener_productos()
+
         # Manejo del formulario de agregar producto
         if request.method == 'POST' and 'agregar_producto' in request.POST:
 
             try:
-                # Crear rl producto usando tu función existente
-                producto = crear_producto(
-                    sku=request.POST.get('sku'),
-                    codigo_barra=request.POST.get('codigo_barra'),
-                    nombre_producto=request.POST.get('nombre_producto'),
-                    nombre_abreviado=request.POST.get('nombre_abreviado'),
-                    descripcion=request.POST.get('descripcion'),
-                    categoria_id=request.POST.get('categoria'),
-                    precio_venta=request.POST.get('precio_venta'),
-                    imagen=request.FILES.get('imagen')
+                # Convertir precio_venta a Decimal
+                precio_str = request.POST.get('productPrice')
+                precio_venta = None
+                if precio_str:
+                    try:
+                        precio_venta = Decimal(precio_str)
+                    except InvalidOperation:
+                        raise ValidationError("El precio debe ser un número válido")
+
+                # Crear el producto
+                crear_producto(
+                    sku=request.POST.get('productSKU').strip(),
+                    codigo_barra=request.POST.get('productCode').strip(),
+                    nombre_producto=request.POST.get('productName').strip(),
+                    nombre_abreviado=request.POST.get('productAbrName').strip(),
+                    descripcion=request.POST.get('productDescp').strip(),
+                    categoria_id=request.POST.get('productCategory'),
+                    precio_venta=precio_venta,
+                    imagen=request.FILES.get('productImage'),
+                    disponible=True
                 )
                 messages.success(request, 'Producto agregado exitosamente')
 
-                return redirect('edicion_productos')
+                # Recargar los productos después de agregar uno nuevo
+                productos = obtener_productos()
             
             except ValidationError as e:
                 messages.error(request, f'Error de validación: {str(e)}')
             except Exception as e:
                 messages.error(request, f'Error al guardar producto: {str(e)}')
-                
 
+        # Manejor del formulario de edición de producto
+        if request.method == 'POST' and 'editar_producto' in request.POST:
+            try:
+                producto_id = request.POST.get('product_id')
+                precio_str = request.POST.get('editProductPrice')
+                precio_venta = None
+                if precio_str:
+                    try:
+                        precio_venta = Decimal(precio_str)
+                    except InvalidOperation:
+                        raise ValidationError("El precio debe ser un número válido")
+                    
+                # Prepara datos para edición
+                update_data = {
+                    'nombre_producto': request.POST.get('editProductName').strip(),
+                    'nombre_abreviado': request.POST.get('editProductAbrName').strip(),
+                    'descripcion': request.POST.get('editProductDescp').strip(),
+                    'precio_venta': precio_venta,
+                    'categoria_id': request.POST.get('editProductCategory')
+                }
 
+                # Editar el producto
+                editar_producto(
+                    producto_id=producto_id,
+                    imagen=request.FILES.get('editProductImage'),
+                    **update_data
+                )
 
-        categoria_id = request.GET.get('categoria', None)
-        search_query = request.GET.get('search', None)
-
-        productos = obtener_productos()
+                messages.success(request, 'Producto actualizado exitosamente')
+                productos = obtener_productos()
+            
+            except ValidationError as e:
+                messages.error(request, f'Error de validación: {str(e)}')
+            except Exception as e:
+                messages.error(request, f'Error al actualizar producto: {str(e)}')
 
         # Filtrar por categoría si se especifica
-        if categoria_id and categoria_id != 'all':
-            productos = productos.filter(categoria_id=categoria_id)
+        if categoria and categoria != 'all':
+            productos = productos.filter(categoria=categoria)
         
         # Filtrar por término de búsqueda si se especifica (búsqueda parcial)
         if search_query:
@@ -68,7 +113,7 @@ def edicion_productos(request) -> HttpResponse | HttpResponseRedirect:
         context = {
             'productos': productos,
             'categorias': obtener_categorias(),
-            'categoria_seleccionada': categoria_id,
+            'categoria_seleccionada': categoria,
             'search_query': search_query
         }
         return render(request, 'comercio/views/products.html', context)

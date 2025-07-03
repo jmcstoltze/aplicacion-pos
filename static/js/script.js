@@ -81,29 +81,64 @@ function enableEditMode() {
     });
 }
 
-// Función para cargar datos del producto de prueba
-/*
-function loadProductData(sku) {
-    // Aquí normalmente harías una petición AJAX o buscar datos
-    // Ejemplo con datos estáticos basados en el SKU:
-    const productData = {
-        'GTR-IBZ-AS53': {
-            name: 'Guitarra eléctrica Ibanez AS53',
-            price: '339990',
-            sku: 'GTR-IBZ-AS53',
-            image: 'img/productos/01-guitarra-electrica-ibanez.png'
-        }
-        // Agregar más productos según sea necesario
-    };
+// Función para cargar datos del producto en el modal de edición
+function loadProductData(productId) {
+    fetch(`/get_product_data/${productId}/`)
+        .then(response => response.json())
+        .then(data => {
+            // Llenar el formulario con los datos del producto
+            document.getElementById('editProductId').value = data.id;
+            document.getElementById('editProductSKU').value = data.sku;
+            document.getElementById('editProductCode').value = data.codigo_barra;
+            document.getElementById('editProductCategory').value = data.categoria_id;
+            document.getElementById('editProductName').value = data.nombre_producto;
+            document.getElementById('editProductAbrName').value = data.nombre_abreviado;
+            document.getElementById('editProductDescp').value = data.descripcion;
+            document.getElementById('editProductPrice').value = data.precio_venta;
+            
+            // Mostrar el modal
+            const editModal = new bootstrap.Modal(document.getElementById('editProductModal'));
+            editModal.show();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al cargar los datos del producto');
+        });
+}
+
+// Manejar envío del formulario de edición
+document.getElementById('editProductForm').addEventListener('submit', function(e) {
+    e.preventDefault();
     
-    const product = productData[sku];
-    if(product) {
-        document.getElementById('editProductName').value = product.name;
-        document.getElementById('editProductPrice').value = product.price;
-        document.getElementById('editProductSKU').value = product.sku;
-        document.getElementById('editProductImage').value = product.image;
-    }
-}*/
+    const formData = new FormData(this);
+    
+    fetch('/edicion_productos/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        }
+    })
+    .then(response => {
+        if (response.redirected) {
+            window.location.href = response.url;
+        } else {
+            return response.json();
+        }
+    })
+    .then(data => {
+        if (data && data.success) {
+            window.location.reload();
+        } else if (data) {
+            alert(data.message || 'Error al actualizar el producto');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al actualizar el producto');
+    });
+});
 
 // Cambio automático del año en el footer
 document.getElementById('year').textContent = new Date().getFullYear();

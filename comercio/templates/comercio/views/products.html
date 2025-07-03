@@ -25,7 +25,7 @@
         <!-- Filtro por categoría -->            
         <div class="col-md-4">
             <form method="get" id="categoriaForm">
-                <select class="form-select" id="branchSelect"name="categoria" onchange="document.getElementById('categoriaForm').submit()">
+                <select class="form-select" id="branchSelect" name="categoria" onchange="document.getElementById('categoriaForm').submit()">
                     <option value="all" {% if not categoria_seleccionada or categoria_seleccionada == 'all' %}selected{% endif %}>Todas las categorías</option>
                     {% for categoria in categorias %}
                         <option value="{{ categoria.id }}" {% if categoria_seleccionada == categoria.id|stringformat:"s" %}selected{% endif %}>{{ categoria.nombre_categoria }}</option>
@@ -41,7 +41,7 @@
     </div>
 </div>
 
-<!-- Contenido principal -->
+<!-- Contenido principal - Cards de Productos -->
 <div class="container-fluid mt-4">
     <!-- Botones flotantes para acciones -->
     <div class="action-buttons">
@@ -109,16 +109,16 @@
                     <input type="hidden" name="agregar_producto" value="1">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="sku" class="form-label">SKU</label>
-                            <input type="text" class="form-control" id="sku" name="sku" required>
+                            <label for="productSKU" class="form-label">SKU</label>
+                            <input type="text" class="form-control" id="productSKU" name="productSKU" required>
                         </div>
                         <div class="mb-3">
-                            <label for="codigo_barra" class="form-label">Código de Barra</label>
-                            <input type="text" class="form-control" id="codigo_barra" name="codigo_barra" required>
+                            <label for="productCode" class="form-label">Código de Barra</label>
+                            <input type="text" class="form-control" id="productCode" name="productCode" required>
                         </div>                    
                         <div class="mb-3">
-                            <label for="categoria" class="form-label">Categoría</label>
-                            <select class="form-select" id="categoria" name="categoria" required>
+                            <label for="productCategory" class="form-label">Categoría</label>
+                            <select class="form-select" id="productCategory" name="productCategory" required>
                                 <option value="">Seleccione una categoría</option>
                                 {% for categoria in categorias %}                                
                                 <option value="{{ categoria.id }}">{{ categoria.nombre_categoria }}</option>
@@ -126,24 +126,24 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="nombre_producto" class="form-label">Nombre del Producto</label>
-                            <input type="text" class="form-control" id="nombre_producto" name="nombre_producto" required>
+                            <label for="productName" class="form-label">Nombre del Producto</label>
+                            <input type="text" class="form-control" id="productName" name="productName" required>
                         </div>
                         <div class="mb-3">
-                            <label for="nombre_abreviado" class="form-label">Nombre Abreviado</label>
-                            <input type="text" class="form-control" id="nombre_abreviado" name="nombre_abreviado" required>
+                            <label for="productAbrName" class="form-label">Nombre Abreviado</label>
+                            <input type="text" class="form-control" id="productAbrName" name="productAbrName" required>
                         </div>
                         <div class="mb-3">
-                            <label for="descripcion" class="form-label">Descripción</label>
-                            <input type="text" class="form-control" id="descripcion" name="descripcion" required>
+                            <label for="productDescp" class="form-label">Descripción</label>
+                            <input type="text" class="form-control" id="productDescp" name="productDescp" required>
                         </div>
                         <div class="mb-3">
-                            <label for="precio_venta" class="form-label">Precio</label>
-                            <input type="text" class="form-control" id="precio_venta" name="precio_venta" required>
+                            <label for="productPrice" class="form-label">Precio</label>
+                            <input type="text" class="form-control" id="productPrice" name="productPrice" required maxlength="12">
                         </div>                        
                         <div class="mb-3">
-                            <label for="imagen" class="form-label">Imagen del Producto</label>
-                            <input class="form-control" type="file" id="imagen" name="imagen">
+                            <label for="productImage" class="form-label">Imagen del Producto</label>
+                            <input class="form-control" type="file" id="productImage" name="productImage" accept="image/*">
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -156,5 +156,68 @@
     </div>
 </div>
 
+<!-- Modal de Edición -->
+<div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editProductModalLabel">Editar Producto</h5>
+                <button type="button" class="btn-close custom-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editProductForm" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="editar_producto" value="1">
+                    <input type="hidden" id="editProductId" name="product_id">
+                    <div class="modal-body">
+                        <!-- Sólo lectura -->
+                        <div class="mb-3">
+                            <label for="editProductSKU" class="form-label">SKU</label>
+                            <input type="text" class="form-control" id="editProductSKU" required readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editProductCode" class="form-label">Código de Barra</label>
+                            <input type="text" class="form-control" id="editProductCode" required readonly>
+                        </div>
+                        <!-- Campo de Categoría -->
+                        <div class="mb-3">
+                            <label for="editProductCategory" class="form-label">Categoría</label>
+                            <select class="form-select" id="editProductCategory" name="editProductCategory" required>
+                                <option value="">Seleccione una categoría</option>
+                                {% for categoria in categorias %}
+                                <option value="{{ categoria.id }}">{{ categoria.nombre_categoria }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editProductName" class="form-label">Nombre del Producto</label>
+                            <input type="text" class="form-control" id="editProductName" name="editProductName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editProductAbrName" class="form-label">Nombre Abreviado</label>
+                            <input type="text" class="form-control" id="editProductAbrName" name="editProductAbrName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editProductDescp" class="form-label">Descripción</label>
+                            <input type="text" class="form-control" id="editProductDescp" name="editProductProductDescp" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editProductPrice" class="form-label">Precio</label>
+                            <input type="text" class="form-control" id="editProductPrice" name="editProductPrice" required maxlength="12">
+                        </div>                                                
+                        <div class="mb-3">
+                            <label for="editProductImage" class="form-label">Imagen del Producto</label>
+                            <input class="form-control" type="text" id="editProductImage" name="editProductImage">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-solid-orange px-4 py-2" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-black-edit px-4 py-2">Guardar Cambios</button>
+                    </div>
+                </form>                
+            </div>            
+        </div>
+    </div>
+</div>
 
 {% endblock %}

@@ -1,4 +1,5 @@
 import os
+from django.utils import timezone
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import transaction, models
@@ -32,22 +33,18 @@ def guardar_imagen_producto(imagen, sku):
     if not imagen:
         return None
     
-    # Crear directorio si no existe
-    upload_dir = os.path.join(settings.MEDIA_ROOT, 'productos')
-    os.makedirs(upload_dir, exist_ok=True)
+    upload_path = f'files_storage/productos/{timezone.now().year}/{timezone.now().month}/{timezone.now().day}/'
+    full_path = os.path.join(settings.MEDIA_ROOT, upload_path)
     
-    # Obtener extensión del archivo
+    os.makedirs(full_path, exist_ok=True)
     ext = os.path.splitext(imagen.name)[1]
     filename = f"producto_{sku}{ext}"
-    filepath = os.path.join(upload_dir, filename)
     
-    # Guardar el archivo
-    with open(filepath, 'wb+') as destination:
+    with open(os.path.join(full_path, filename), 'wb+') as destination:
         for chunk in imagen.chunks():
             destination.write(chunk)
     
-    # Retornar ruta relativa para la DB
-    return os.path.join('productos', filename)
+    return os.path.join(upload_path, filename)
 
 def crear_producto(
         sku,
@@ -83,9 +80,19 @@ def crear_producto(
     """
     try:
         with transaction.atomic():
-            # Validar campos requeridos
-            if not all([sku, codigo_barra, nombre_producto, nombre_abreviado, descripcion]):
-                raise ValidationError("Todos los campos obligatorios deben ser proporcionados")
+
+            # Validaciones básicas
+            required_fields = {
+                'SKU': sku,
+                'Código de barras': codigo_barra,
+                'Nombre del producto': nombre_producto,
+                'Nombre abreviado': nombre_abreviado,
+                'Descripción': descripcion
+            }
+
+            for field, value in required_fields.items():
+                if not value:
+                    raise ValidationError(f"El campo {field} es obligatorio")
             
             # Validar unicidad de campos únicos
             #########################################
@@ -103,10 +110,10 @@ def crear_producto(
                 raise ValidationError(f"El nombre abreviado {nombre_abreviado} ya existe")
             
             # Validar categoría si se proporciona
-            categoria = None
+            categoria_obj = None
             if categoria_id:
                 try:
-                    categoria = Categoria.objects.get(pk=categoria_id)
+                    categoria_obj = Categoria.objects.get(pk=categoria_id)
                 except Categoria.DoesNotExist:
                     raise ValidationError(f"No existe una categoría con ID {categoria_id}")
             
@@ -121,33 +128,31 @@ def crear_producto(
                 
                 # Limitar tamaño de imagen (ejemplo: 2MB)
                 if imagen.size > 2 * 1024 * 1024:
-                    raise ValidationError("La imagen no puede superar los 2MB")
-                                            
+                    raise ValidationError("La imagen no puede superar los 2MB")                      
 
-            # Crear el producto
+            # Crear instancia del producto
             producto = Producto(
                 sku=sku,
                 codigo_barra=codigo_barra,
                 nombre_producto=nombre_producto,
                 nombre_abreviado=nombre_abreviado,
                 descripcion=descripcion,
+                categoria=categoria_obj,
                 precio_venta=precio_venta,
                 **kwargs
             )
 
-            # Asignar categoría si existe
-            if categoria:
-                producto.categoria = categoria
-
-            # Asignar imagen si existe
-            if imagen:
-                producto.imagen = imagen
-
             # Validación completa del modelo
             producto.full_clean()
 
-            # Guardar en la base de datos
+            # Guardar el producto (primero sin imagen para obtener ID)
             producto.save()
+
+            # Si hay imagen, guardarla usando el ID del producto
+            if imagen:
+                ext = os.path.splitext(imagen.name)[1]
+                producto.imagen.save(f"producto_{producto.id}{ext}", imagen)
+                producto.save()
 
             return producto
     
@@ -256,6 +261,7 @@ def editar_producto(producto_id, imagen=None, **kwargs):
     """
     try:
         with transaction.atomic():
+            # Obtener el producto
             producto = Producto.objects.get(pk=producto.id)
 
             # Campos que no deben ser editados directamente
@@ -291,6 +297,15 @@ def editar_producto(producto_id, imagen=None, **kwargs):
                 if float(kwargs['precio_venta']) < 0:
                     raise ValidationError("El precio de venta no puede ser negativo")
                 
+            # Validar categoría si se proporciona
+            if 'categoria_id' in kwargs:
+                try:
+                    categoria = Categoria.objects.get(pk=kwargs['categoria_id'])
+                    kwargs['categoria'] = categoria
+                    del kwargs['categoria_id']
+                except Categoria.DoesNotExist:
+                    raise ValidationError(f"No existe la categoría con ID {kwargs['categoria_id']}")
+
             # Validar imagen si se proporciona
             if imagen:
                 if not imagen.content_type.startswith('image/'):
@@ -304,13 +319,18 @@ def editar_producto(producto_id, imagen=None, **kwargs):
                 if producto.imagen:
                     producto.imagen.delete(save=False)
                 
-                producto.imagen = imagen
+                # Guardar nueva imagen
+                ext = os.path.splitext(imagen.name)[1]
+                producto.imagen.save(f"producto_{producto.id}{ext}", imagen)
             
             # Actualizar los campos
             for key, value in kwargs.items():
                 setattr(producto, key, value)
 
+            # Validación completa del modelo
+            producto.full_clean()
             producto.save()
+            
             return producto
     
     except ObjectDoesNotExist:
