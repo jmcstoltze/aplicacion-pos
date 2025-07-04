@@ -309,3 +309,4 @@ class StockBodega(models.Model):
         verbose_name = "Stock en Bodega"
         verbose_name_plural = "Stocks en Bodegas"
         unique_together = [('producto', 'bodega')]  # Evita duplicados
+        

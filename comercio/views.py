@@ -16,7 +16,8 @@ from .services import (
     editar_producto,
     deshabilitar_producto,
     listar_productos,
-    eliminar_producto
+    eliminar_producto,
+    obtener_bodegas
 )
 
 @login_required
@@ -148,5 +149,16 @@ def edicion_productos(request) -> HttpResponse | HttpResponseRedirect:
     except DatabaseError as e:
         return render(request, 'error.html', {'message': 'Error al cargar productos'})
     
+@login_required
+def stock_productos(request) -> HttpResponse | HttpResponseRedirect:
 
+    bodegas = obtener_bodegas()
+    productos = obtener_productos()
+
+    context = {
+        'bodegas': bodegas,
+        'productos': productos
+    }
+
+    return render(request, 'comercio/views/stock.html', context)
 

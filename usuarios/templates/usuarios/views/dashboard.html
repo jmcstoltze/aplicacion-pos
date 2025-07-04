@@ -39,7 +39,7 @@
                     {% endif %}
 
                     <!-- Editar stock - Disponible para ammbos roles -->
-                    <li><a href="#"><i class="bi bi-box-arrow-in-down"></i> Editar stock</a></li>
+                    <li><a href="{% url 'stock_productos' %}"><i class="bi bi-box-arrow-in-down"></i> Editar stock</a></li>
 
                     <!-- Editar promociones - Solo para Administrador -->
                     {% if request.user.usuario.rol.nombre_rol == 'Administrador' %} 

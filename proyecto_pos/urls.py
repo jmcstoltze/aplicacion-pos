@@ -19,14 +19,15 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from usuarios.views import inicio_sesion, dashboard, cerrar_sesion
-from comercio.views import edicion_productos
+from comercio.views import edicion_productos, stock_productos
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', inicio_sesion, name="inicio_sesion"),
     path('dashboard/', dashboard, name="dashboard"),
     path('logout/', cerrar_sesion, name="cerrar_sesion"),
-    path('edicion-productos/', edicion_productos, name="edicion_productos")
+    path('edicion-productos/', edicion_productos, name="edicion_productos"),
+    path('stock-productos/', stock_productos, name="stock_productos")
 ]
 #+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

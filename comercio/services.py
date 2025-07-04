@@ -4,14 +4,12 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import transaction, models
 from django.conf import settings
-from .models import Producto, Categoria
+from .models import Producto, Categoria, Bodega
 
 def obtener_productos():
     """
     Obtiene todos los productos disponibles ordenados por categoría y luego alfabéticamente por nombre
     """
-    # Retorna sólo productos disponibles y ordenados por categoría y alfabéticamente
-    # return Producto.objects.filter(disponible=True)
     return Producto.objects.filter(disponible=True).order_by('categoria__nombre_categoria', 'nombre_producto')
 
 def obtener_categorias():
@@ -359,9 +357,6 @@ def deshabilitar_producto(producto_id):
         raise ObjectDoesNotExist(f"No se encontró el producto con ID {producto_id}")
     except Exception as e:
         raise Exception(f"Error inesperado al deshabilitar producto: {str(e)}")
-    
-
-
 
 def eliminar_producto(producto_id):
     """
@@ -397,3 +392,10 @@ def eliminar_producto(producto_id):
         raise Exception(f"No se puede eliminar el productos porque tien relaciones protegidas: {str(pe)}")
     except Exception as e:
         raise Exception(f"Error inesperado al eliminar producto: {str(e)}")
+
+def obtener_bodegas():
+
+    """
+    Obtiene los nombres de las bodegas existentes
+    """
+    return Bodega.objects.order_by('sucursal__nombre_sucursal', '-es_principal', 'nombre_bodega')
