@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import transaction, models
 from django.conf import settings
-from .models import Producto, Categoria, Bodega
+from .models import Producto, Categoria, Bodega, StockBodega
 
 def obtener_productos():
     """
@@ -399,3 +399,34 @@ def obtener_bodegas():
     Obtiene los nombres de las bodegas existentes
     """
     return Bodega.objects.order_by('sucursal__nombre_sucursal', '-es_principal', 'nombre_bodega')
+
+def obtener_productos_con_stock():
+    """
+    Obtiene productos con información de stock en bodegas.
+    """
+    productos = Producto.objects.filter(disponible=True).prefetch_related(
+            models.Prefetch(
+                'stockbodega_set',
+                queryset=StockBodega.objects.select_related('bodega'),
+                to_attr='stocks_relacionados'
+            )
+        ).annotate(
+            stock_total=models.Sum('stockbodega__stock')
+        )
+
+    return productos.order_by('categoria__nombre_categoria', 'nombre_producto')
+
+def productos_bodega(bodega_id):
+
+    productos = obtener_productos_con_stock()
+    
+    productos = productos.filter(
+                stockbodega__bodega_id=bodega_id
+            ).annotate(
+                stock_bodega=models.Sum(
+                    'stockbodega__stock',
+                    filter=models.Q(stockbodega__bodega_id=bodega_id)
+                )
+            )
+    
+    return productos.order_by('categoria__nombre_categoria', 'nombre_producto')

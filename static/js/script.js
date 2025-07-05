@@ -164,6 +164,19 @@ document.getElementById('editProductForm').addEventListener('submit', function(e
     });
 });
 
+// Función para filtros de bodegas
+document.getElementById('branchSelectBodega').addEventListener('change', function() {
+
+    // Filtrar con AJAX
+    fetch(`?bodega=${this.value}`)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('productos-container'),this.innerHTML = html;
+        })
+});
+
+// Función para búsqueda en stock de productos
+
 // Cambio automático del año en el footer
 document.getElementById('year').textContent = new Date().getFullYear();
 

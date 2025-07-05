@@ -8,7 +8,7 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
-from .models import Producto
+from .models import Producto, StockBodega, Bodega
 from .services import (
     obtener_productos,
     obtener_categorias,
@@ -17,7 +17,9 @@ from .services import (
     deshabilitar_producto,
     listar_productos,
     eliminar_producto,
-    obtener_bodegas
+    obtener_bodegas,
+    obtener_productos_con_stock,
+    productos_bodega
 )
 
 @login_required
@@ -148,17 +150,45 @@ def edicion_productos(request) -> HttpResponse | HttpResponseRedirect:
         return render(request, 'comercio/views/products.html', context)
     except DatabaseError as e:
         return render(request, 'error.html', {'message': 'Error al cargar productos'})
-    
+
 @login_required
 def stock_productos(request) -> HttpResponse | HttpResponseRedirect:
+    try:
+        bodega_id = request.GET.get('bodega', 'all')        
 
-    bodegas = obtener_bodegas()
-    productos = obtener_productos()
+        # Obtener todos los productos (incluyendo sin stock)
+        productos = Producto.objects.all()
 
-    context = {
-        'bodegas': bodegas,
-        'productos': productos
-    }
+        # Prefetch optimizado para relaciones de stock
+        prefetch_query = StockBodega.objects.select_related('bodega')
+        
+        if bodega_id != 'all':
+            prefetch_query = prefetch_query.filter(bodega_id=bodega_id)
+        
+        productos = productos.prefetch_related(
+            models.Prefetch('stockbodega_set', queryset=prefetch_query, to_attr='stocks_filtrados')
+        )
 
-    return render(request, 'comercio/views/stock.html', context)
+        # Anotar el stock según el filtro
+        if bodega_id == 'all':
+            productos = productos.annotate(
+                stock_total=models.Sum('stockbodega__stock')
+            )
+        else:
+            productos = productos.annotate(
+                stock_bodega=models.Sum(
+                    'stockbodega__stock',
+                    filter=models.Q(stockbodega__bodega_id=bodega_id)
+                )
+            )
 
+        context = {
+            'productos': productos.order_by('categoria__nombre_categoria', 'nombre_producto'),
+            'bodegas': Bodega.objects.all(),
+            'bodega_seleccionada': bodega_id
+        }
+
+        return render(request, 'comercio/views/stock.html', context)
+    
+    except Exception as e:
+        return render(request, 'error.html', {'message': str(e)})
