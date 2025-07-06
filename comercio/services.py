@@ -1,4 +1,7 @@
 import os
+import csv
+from io import StringIO
+from django.http import HttpResponse
 from django.utils import timezone
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -430,3 +433,41 @@ def productos_bodega(bodega_id):
             )
     
     return productos.order_by('categoria__nombre_categoria', 'nombre_producto')
+
+def exportar_stock_csv(productos, bodega_id):
+    # Crear un buffer en memoria para el CSV
+    buffer = StringIO()
+    writer = csv.writer(buffer)
+
+    # Escribir encabezados
+    headers = [
+        'ID Producto',
+        'Nombre Producto',
+        'Categoría',
+        'SKU',
+        'Status',
+        'Stock Total' if bodega_id == 'all' else f'Stock Bodega {bodega_id}'
+    ]
+    writer.writerow(headers)
+
+    # Escribir datos de productos
+    for producto in productos:
+        row = [
+            producto.id,
+            producto.nombre_producto,
+            producto.categoria.nombre_categoria if producto.categoria else '',
+            producto.sku,
+            'Disponible' if producto.disponible else 'No disponible',
+            producto.stock_total if bodega_id == 'all' else producto.stock_bodega
+        ]
+        writer.writerow(row)
+
+    # Preparar la respuesta HTTP
+    buffer.seek(0)
+    response = HttpResponse(buffer, content_type='text/csv')
+    filename = 'stock_total.csv' if bodega_id == 'all' else f'stock_bodega_{bodega_id}.csv'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+    return response
+
+

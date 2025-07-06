@@ -19,7 +19,8 @@ from .services import (
     eliminar_producto,
     obtener_bodegas,
     obtener_productos_con_stock,
-    productos_bodega
+    productos_bodega,
+    exportar_stock_csv
 )
 
 @login_required
@@ -188,6 +189,11 @@ def stock_productos(request) -> HttpResponse | HttpResponseRedirect:
             # Contar productos con stock en esta bodega > 0
             productos_con_stock = productos.filter(stock_bodega__gt=0).count()
 
+        '''
+        # Manejar exportación a CSV
+        if request.GET.get('export') == 'csv':
+            return exportar_stock_csv(productos, bodega_id) '''
+
         context = {
             'productos': productos.order_by('categoria__nombre_categoria', 'nombre_producto'),
             'bodegas': Bodega.objects.all(),
@@ -196,12 +202,13 @@ def stock_productos(request) -> HttpResponse | HttpResponseRedirect:
             'total_productos': productos.count()
         }
         
-        '''
         # Manejar POST (ajustes de stock)
         if request.method == 'POST':
             if bodega_id == 'all':
                 messages.error(request, 'Debes seleccionar una bodega específica para hacer ajustes')
-                return redirect(stock_productos)
+                #return redirect('stock_productos')
+                # Mantener el render en lugar de redirect
+                return render(request, 'comercio/views/stock.html', context)
         
         # Procesar ajustes individuales/masivos
         for key, value in request.POST.items():
@@ -226,11 +233,13 @@ def stock_productos(request) -> HttpResponse | HttpResponseRedirect:
                 
                 except (ValueError, IntegrityError) as e:
                     messages.error(request, f'Error al actualizar producto ID {producto_id}: {str(e)}')
-                    return redirect(stock_productos)
-                    '''
+                    return redirect('stock_productos')                    
 
+        #return render(request, 'comercio/views/stock.html', context)
+        # Mantener el render en lugar de redirect
         return render(request, 'comercio/views/stock.html', context)
     
     except Exception as e:
         messages.error(request, f'Error: {str(e)}')
-        #return redirect(stock_productos)
+        #return redirect('stock_productos')
+        return render(request, 'comercio/views/stock.html', context)

@@ -39,7 +39,7 @@
                         <tr>
                             <th width="10%" class="d-none d-sm-table-cell">Imagen</th>
                             <th width="35%">Producto</th>
-                            <th width="10%">Status</th>
+                            <th width="10%" class="d-none d-sm-table-cell">Status</th>
                             <th width="20%" class="d-none d-lg-table-cell">SKU</th>
                             <th width="10%">Stock</th>
                             <th width="10%">Ajuste</th>                        
@@ -61,11 +61,11 @@
                             </td>                        
                             <td class="align-middle">{{ producto.nombre_producto }}</td>
                             {% if producto.disponible %}
-                                <td class="align-middle">
+                                <td class="align-middle d-none d-sm-table-cell">
                                     Disponible
                                 </td>
                             {% else %}
-                                <td class="align-middle" style="background-color: lightcoral; color: white;">
+                                <td class="align-middle d-none d-sm-table-cell" style="background-color: lightcoral; color: white;">
                                     No disponible
                                 </td>                            
                             {% endif %}                      
@@ -101,17 +101,18 @@
                 </table>
             </div>
         
-            <!-- Botones de acciones masivas -->
+            <!-- Botones de acciones masivas
             <div class="row mt-3">
                 <div class="col-4">
                     <div class="d-flex gap-2">
-                        <button class="btn btn-black-edit" >
+                        <button class="btn btn-black-edit" onclick="exportToCSV()">
                             <i class="bi bi-download"></i>Exportar                        
                         </button>                    
                     </div>
-                </div>
+                </div> -->
+
                 <!-- Botón para guardar todos -->
-                <div class="col-8">
+                <div class="col-4">
                     <button type="submit"
                             name="guardar_todos"
                             value="1"
@@ -123,17 +124,22 @@
             </div>
         </form>
 
-        <!-- Mostrar mensajes
+        <!-- Mostrar mensajes -->
         {% if messages %}
-        <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+        <div class="position-fixed top-0 end-0 p-3" style="z-index: 1100;">
             {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
-                {{ message }}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show">
+                {% if message.tags == 'success' %}
+                <i class="bi bi-check-circle-fill me-2"></i>
+                    {% elif message.tags == 'error' %}
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    {% endif %}
+                    {{ message }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
+                </div>
             {% endfor %}
         </div>
-        {% endif %} -->
+        {% endif %}
 
     </div>
     <br><br> 

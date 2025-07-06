@@ -177,6 +177,7 @@ document.getElementById('branchSelectBodega').addEventListener('change', functio
 
 // Función para búsqueda en stock de productos (sin implementar)
 
+// Función para las modificaciones de stock en las bodegas
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('formMasivo').addEventListener('submit', function(e) {
         const bodegaId = document.querySelector('input[name="bodega_id"]').value;
@@ -198,6 +199,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// Script para la descarga de CSV de stock
+/*
+function exportToCSV() {
+    const bodegaSelect = document.getElementById('branchSelectBodega');
+    const bodegaId = bodegaSelect.value;
+    window.location.href = `?bodega=${bodegaId}&export=csv`;
+}*/
 
 // Cambio automático del año en el footer
 document.getElementById('year').textContent = new Date().getFullYear();
