@@ -270,6 +270,23 @@ html, body{
     color: var(--color-black);
 }
 
+#branchSelectBodega {
+    background-color: var(--color-white); /* Color de fondo oscuro */
+    color: #2e2e2e;
+    border-radius: 5px;
+}
+
+#branchSelectBodega:focus {
+    box-shadow: 0 0 0 0.25rem var(--color-input-shadow);
+    border: 0.5px solid var(--color-input-focus);
+}
+
+/* Personalización de las opciones */
+#branchSelectBodega option {
+    background: var(--color-white);
+    color: var(--color-black);
+}
+
 /* Ajuste para el contenido principal productos*/
 .content {
     margin-bottom: 60px; /* Para que no quede tapado por el footer */

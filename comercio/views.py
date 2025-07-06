@@ -1,5 +1,5 @@
 from django.db import models
-from django.db import DatabaseError
+from django.db import DatabaseError, IntegrityError
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from decimal import Decimal, InvalidOperation
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -153,10 +153,9 @@ def edicion_productos(request) -> HttpResponse | HttpResponseRedirect:
 
 @login_required
 def stock_productos(request) -> HttpResponse | HttpResponseRedirect:
+
     try:
         bodega_id = request.GET.get('bodega', 'all')        
-
-        # Obtener todos los productos (incluyendo sin stock)
         productos = Producto.objects.all()
 
         # Prefetch optimizado para relaciones de stock
@@ -174,6 +173,10 @@ def stock_productos(request) -> HttpResponse | HttpResponseRedirect:
             productos = productos.annotate(
                 stock_total=models.Sum('stockbodega__stock')
             )
+
+            # Contar productos con stock total > 0
+            productos_con_stock = productos.filter(stock_total__gt=0).count()
+
         else:
             productos = productos.annotate(
                 stock_bodega=models.Sum(
@@ -182,13 +185,52 @@ def stock_productos(request) -> HttpResponse | HttpResponseRedirect:
                 )
             )
 
+            # Contar productos con stock en esta bodega > 0
+            productos_con_stock = productos.filter(stock_bodega__gt=0).count()
+
         context = {
             'productos': productos.order_by('categoria__nombre_categoria', 'nombre_producto'),
             'bodegas': Bodega.objects.all(),
-            'bodega_seleccionada': bodega_id
+            'bodega_seleccionada': bodega_id,
+            'productos_con_stock': productos_con_stock,
+            'total_productos': productos.count()
         }
+        
+        '''
+        # Manejar POST (ajustes de stock)
+        if request.method == 'POST':
+            if bodega_id == 'all':
+                messages.error(request, 'Debes seleccionar una bodega específica para hacer ajustes')
+                return redirect(stock_productos)
+        
+        # Procesar ajustes individuales/masivos
+        for key, value in request.POST.items():
+            if key.startswith('ajuste_'):
+                producto_id = key.replace('ajuste_', '')
+                try:
+                    ajuste = int(value)
+                    if ajuste == 0:
+                        continue
+
+                    # Actualizar stock
+                    stock, created = StockBodega.objects.get_or_create(
+                        producto_id=producto_id,
+                        bodega_id=bodega_id,
+                        defaults={'stock': 0}
+                    )
+                    stock.stock += ajuste
+                    if stock.stock < 0:
+                        messages.error(request, f'El producto ID {producto_id} no puede tener stock negativo')
+                    stock.save()
+                    messages.success(request, f'Stock actualizado para producto ID {producto_id}')
+                
+                except (ValueError, IntegrityError) as e:
+                    messages.error(request, f'Error al actualizar producto ID {producto_id}: {str(e)}')
+                    return redirect(stock_productos)
+                    '''
 
         return render(request, 'comercio/views/stock.html', context)
     
     except Exception as e:
-        return render(request, 'error.html', {'message': str(e)})
+        messages.error(request, f'Error: {str(e)}')
+        #return redirect(stock_productos)

@@ -175,11 +175,34 @@ document.getElementById('branchSelectBodega').addEventListener('change', functio
         })
 });
 
-// Función para búsqueda en stock de productos
+// Función para búsqueda en stock de productos (sin implementar)
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('formMasivo').addEventListener('submit', function(e) {
+        const bodegaId = document.querySelector('input[name="bodega_id"]').value;
+        if(bodegaId === 'all') {
+            e.preventDefault();
+            alert('Debes seleccionar una bodega específica para hacer ajustes');
+            return false;
+        }
+        
+        let hasChanges = false;
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            if(input.value !== "0") hasChanges = true;
+        });
+        
+        if(!hasChanges && !(e.submitter && e.submitter.name === 'producto_id')) {
+            e.preventDefault();
+            alert('No hay cambios para guardar');
+            return false;
+        }
+    });
+});
 
 // Cambio automático del año en el footer
 document.getElementById('year').textContent = new Date().getFullYear();
 
+// Función para cierre de sesión
 document.addEventListener('DOMContentLoaded', function () {
     const logoutLink = document.getElementById('logoutLink');
 

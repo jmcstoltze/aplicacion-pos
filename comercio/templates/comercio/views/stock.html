@@ -6,24 +6,7 @@
     <!-- Barra de búsqueda y filtros -->
     <div class="container-fluid bg-light py-2 shadow-sm">
         <div class="row align-items-center">
-            <!-- Buscador -->
-            <!--
-            <div class="col-md-6 mb-2 mb-md-0">
-                <form method="get" action="">
-                    <div class="input-group">
-                        <input type="text"
-                                class="form-control"
-                                placeholder="Buscar por nombre o SKU..."
-                                id="searchInput"
-                                name="search"
-                                value="{{ request.GET.search }}">
-                        <button class="btn btn-solid-orange" type="submit" id="searchButton">
-                            <i class="bi bi-search"></i> Buscar
-                        </button>
-                    </div>
-                </form>
-            </div> -->
-        
+
             <!-- Filtro por sucursal -->
             <div class="col-md-6">
                 <form method="get" id="bodegaForm">
@@ -39,79 +22,119 @@
         
             <!-- Contador de resultados -->
             <div class="col-md-6 text-md-end">
-                <small class="text-muted" id="resultCount">12 productos con stock</small>
+                <small class="text-muted" id="resultCount">{{ total_productos }} productos</small><br>
+                <small class="text-muted" id="resultCount">{{ productos_con_stock }} productos con stock</small>
             </div>
         </div>
     </div>
 
     <!-- Contenido principal - Tabla de stock -->
     <div class="container-fluid mt-4">
-        <div class="table-responsive">
-            <table class="table table-hover table-bordered bg-white">
-                <thead class="table-dark">
-                    <tr>
-                        <th width="10%" class="d-none d-sm-table-cell">Imagen</th>
-                        <th width="35%">Producto</th>
-                        <th width="20%" class="d-none d-lg-table-cell">SKU</th>
-                        <th width="10%">Stock</th>
-                        <th width="10%">Ajuste</th>                        
-                        <th width="5%">Aplicar</th>
-                    </tr>
-                </thead>
-                <tbody id="productos-container">
-                    <!-- Productos -->                    
-                    {% for producto in productos %}
-                    <tr>
-                        <td class="align-middle text-center d-none d-sm-table-cell">
-                            {% if producto.imagen %}
-                                <img src="{{ producto.imagen.url }}" class="img-thumbnail" style="max-height: 60px;">
+        <form method="post" action="" id="formMasivo">
+            {% csrf_token %}
+            <input type="hidden" name="bodega_id" value="{{ bodega_seleccionada }}">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered bg-white">
+                    <thead class="table-dark">
+                        <tr>
+                            <th width="10%" class="d-none d-sm-table-cell">Imagen</th>
+                            <th width="35%">Producto</th>
+                            <th width="10%">Status</th>
+                            <th width="20%" class="d-none d-lg-table-cell">SKU</th>
+                            <th width="10%">Stock</th>
+                            <th width="10%">Ajuste</th>                        
+                            <th width="5%">Aplicar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productos-container">
+                        <!-- Productos -->                    
+                        {% for producto in productos %}
+                        <tr>
+                            <td class="align-middle text-center d-none d-sm-table-cell">
+                                {% if producto.imagen %}
+                                    <img src="{{ producto.imagen.url }}" class="img-thumbnail" style="max-height: 60px;">
+                                {% else %}
+                                    <div class="no-image-placeholder">
+                                        <i class="bi bi-image text-muted"></i>
+                                    </div>                    
+                                {% endif %}
+                            </td>                        
+                            <td class="align-middle">{{ producto.nombre_producto }}</td>
+                            {% if producto.disponible %}
+                                <td class="align-middle">
+                                    Disponible
+                                </td>
                             {% else %}
-                                <div class="no-image-placeholder">
-                                    <i class="bi bi-image text-muted"></i>
-                                </div>                    
-                            {% endif %}
-                        </td>                        
-                        <td class="align-middle">{{ producto.nombre_producto }}</td>
-                        <td class="align-middle d-none d-lg-table-cell">{{ producto.sku }}</td>
-                        <td class="align-middle">
-                            {% if bodega_seleccionada == 'all' %}
-                                {{ producto.stock_total|default:0 }}
-                            {% else %}
-                                {{ producto.stock_bodega|default:0 }}
-                            {% endif %}
-                        </td>
-                        <td class="align-middle">
-                            <div class="input-group">                                
-                                <input type="number" class="form-control form-control-sm" value="0" min="0">
-                            </div>
-                        </td>                        
-                        <td class="align-middle text-center">
-                            <!-- Botón aplicar o guardar con ícono -->
-                            <button class="btn btn-sm btn-solid-orange" title="Guardar cambios">
-                                <i class="bi bi-save"></i>
-                            </button>
-                        </td>                        
-                    </tr>
-                    {% endfor %}                                        
-                </tbody>
-            </table>
-        </div>
+                                <td class="align-middle" style="background-color: lightcoral; color: white;">
+                                    No disponible
+                                </td>                            
+                            {% endif %}                      
+                            <td class="align-middle d-none d-lg-table-cell">{{ producto.sku }}</td>
+                            <td class="align-middle">
+                                {% if bodega_seleccionada == 'all' %}
+                                    {{ producto.stock_total|default:0 }}
+                                {% else %}
+                                    {{ producto.stock_bodega|default:0 }}
+                                {% endif %}
+                            </td>
+                            <td class="align-middle">
+                                <div class="input-group">                                
+                                    <input type="number"
+                                            class="form-control form-control-sm"
+                                            name="ajuste_{{ producto.id }}"
+                                            value="0" min="-9999" max="9999">
+                                </div>
+                            </td>                        
+                            <td class="align-middle text-center">
+                                <!-- Botón aplicar o guardar con ícono -->
+                                <button type="submit"
+                                        name="producto_id"
+                                        value="{{ producto.id }}"
+                                        class="btn btn-sm btn-solid-orange"
+                                        title="Guardar cambios">
+                                    <i class="bi bi-save"></i>
+                                </button>
+                            </td>                        
+                        </tr>
+                        {% endfor %}                                        
+                    </tbody>
+                </table>
+            </div>
         
-        <!-- Botones de acciones masivas -->
-        <div class="row mt-3">
-            <div class="col-4">
-                <div class="d-flex gap-2">
-                    <button class="btn btn-black-edit" >
-                        <i class="bi bi-download"></i>Exportar                        
-                    </button>                    
+            <!-- Botones de acciones masivas -->
+            <div class="row mt-3">
+                <div class="col-4">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-black-edit" >
+                            <i class="bi bi-download"></i>Exportar                        
+                        </button>                    
+                    </div>
+                </div>
+                <!-- Botón para guardar todos -->
+                <div class="col-8">
+                    <button type="submit"
+                            name="guardar_todos"
+                            value="1"
+                            class="btn btn-solid-orange"
+                            style="min-width: 250px;">
+                        <i class="bi bi-check-circle"></i> Aplicar todos los cambios
+                    </button>
                 </div>
             </div>
-            <div class="col-8">
-                <button class="btn btn-solid-orange" style="min-width: 250px;">
-                    <i class="bi bi-check-circle"></i> Aplicar todos los cambios
-                </button>
+        </form>
+
+        <!-- Mostrar mensajes
+        {% if messages %}
+        <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
+            {% endfor %}
         </div>
+        {% endif %} -->
+
     </div>
     <br><br> 
 
