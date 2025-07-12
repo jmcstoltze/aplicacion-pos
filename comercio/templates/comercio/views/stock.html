@@ -60,15 +60,26 @@
                                 {% endif %}
                             </td>                        
                             <td class="align-middle">{{ producto.nombre_producto }}</td>
+
+                            <!-- Status del producto -->
+                            <input type="hidden" name="producto_id" value="{{ producto.id }}">
+                            <input type="hidden" name="habilitar_producto" value="true">
                             {% if producto.disponible %}
                                 <td class="align-middle d-none d-sm-table-cell">
                                     Disponible
                                 </td>
                             {% else %}
-                                <td class="align-middle d-none d-sm-table-cell" style="background-color: lightcoral; color: white;">
-                                    No disponible
-                                </td>                            
-                            {% endif %}                      
+                                <td class="align-middle d-none d-sm-table-cell" style="background-color: lightcoral; color: white; cursor: pointer;">
+                                    {% if request.user.usuario.rol.nombre_rol == 'Administrador' %}
+                                        <a href="{% url 'stock_productos' %}?habilitar_producto={{producto.id}}" style="text-decoration: none; color: white;" onclick="return confirm('¿Está seguro que desea volver a habilitar el producto?')">
+                                            No disponible         
+                                        </a>
+                                    {% else %}
+                                        No disponible
+                                    {% endif %}                         
+                                </td>                                
+                            {% endif %}
+                            
                             <td class="align-middle d-none d-lg-table-cell">{{ producto.sku }}</td>
                             <td class="align-middle">
                                 {% if bodega_seleccionada == 'all' %}
@@ -101,18 +112,14 @@
                 </table>
             </div>
         
-            <!-- Botones de acciones masivas
+            <!-- Botones de acciones masivas -->
             <div class="row mt-3">
-                <div class="col-4">
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-black-edit" onclick="exportToCSV()">
-                            <i class="bi bi-download"></i>Exportar                        
-                        </button>                    
-                    </div>
-                </div> -->
+                <div class="col-5">
+                    <!-- Botón eliminado Exportar CSV -->
+                </div>
 
                 <!-- Botón para guardar todos -->
-                <div class="col-4">
+                <div class="col-7">
                     <button type="submit"
                             name="guardar_todos"
                             value="1"

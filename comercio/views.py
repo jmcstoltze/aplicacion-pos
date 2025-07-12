@@ -155,91 +155,116 @@ def edicion_productos(request) -> HttpResponse | HttpResponseRedirect:
 @login_required
 def stock_productos(request) -> HttpResponse | HttpResponseRedirect:
 
+    # Contexto inicial como diccionario normal
+    initial_context = {
+        'productos': Producto.objects.none(),
+        'bodegas': Bodega.objects.all(),
+        'bodega_seleccionada': 'all',
+        'productos_con_stock': 0,
+        'total_productos': 0
+    }
+    
     try:
-        bodega_id = request.GET.get('bodega', 'all')        
+        # Obtiene ID de bodega de los parámetros GET u 'all' por defecto
+        bodega_id = request.GET.get('bodega', 'all')
+
+        # Consulta todos los productos
         productos = Producto.objects.all()
 
         # Prefetch optimizado para relaciones de stock
         prefetch_query = StockBodega.objects.select_related('bodega')
         
+        # Si se filtra por bodega específica, aplica el filtro
         if bodega_id != 'all':
             prefetch_query = prefetch_query.filter(bodega_id=bodega_id)
         
+        # Aplica el prefetch a la consulta principal
         productos = productos.prefetch_related(
             models.Prefetch('stockbodega_set', queryset=prefetch_query, to_attr='stocks_filtrados')
         )
 
-        # Anotar el stock según el filtro
+        # Calcula stock total si se seleccionan todas la bodegas
         if bodega_id == 'all':
             productos = productos.annotate(
-                stock_total=models.Sum('stockbodega__stock')
+            stock_total=models.Sum('stockbodega__stock')
             )
 
             # Contar productos con stock total > 0
             productos_con_stock = productos.filter(stock_total__gt=0).count()
 
+        # Calcula stock por bodega si se filtró
         else:
             productos = productos.annotate(
-                stock_bodega=models.Sum(
-                    'stockbodega__stock',
-                    filter=models.Q(stockbodega__bodega_id=bodega_id)
+            stock_bodega=models.Sum(
+                'stockbodega__stock',
+                filter=models.Q(stockbodega__bodega_id=bodega_id)
                 )
             )
 
             # Contar productos con stock en esta bodega > 0
             productos_con_stock = productos.filter(stock_bodega__gt=0).count()
 
-        '''
-        # Manejar exportación a CSV
-        if request.GET.get('export') == 'csv':
-            return exportar_stock_csv(productos, bodega_id) '''
-
+        # Crear nuevo diccionario de contexto combinando el inicial con los nuevos valores
         context = {
+            **initial_context,
             'productos': productos.order_by('categoria__nombre_categoria', 'nombre_producto'),
-            'bodegas': Bodega.objects.all(),
             'bodega_seleccionada': bodega_id,
             'productos_con_stock': productos_con_stock,
             'total_productos': productos.count()
         }
         
+        # Manejar habilitación de producto
+        if 'habilitar_producto' in request.GET:
+            try:
+                producto = Producto.objects.get(id=request.GET['habilitar_producto'])
+                producto.disponible = True
+                producto.save()
+                messages.success(request, f'"{producto.nombre_producto}" disponible en todas la bodegas')
+                return redirect('stock_productos') # Redirige sin parámetros para refrescar
+            
+            except Producto.DoesNotExist:
+                messages.error(request, 'Error: Producto no encontrado')
+                return redirect('stock_productos')
+
         # Manejar POST (ajustes de stock)
         if request.method == 'POST':
             if bodega_id == 'all':
                 messages.error(request, 'Debes seleccionar una bodega específica para hacer ajustes')
-                #return redirect('stock_productos')
                 # Mantener el render en lugar de redirect
                 return render(request, 'comercio/views/stock.html', context)
         
-        # Procesar ajustes individuales/masivos
-        for key, value in request.POST.items():
-            if key.startswith('ajuste_'):
-                producto_id = key.replace('ajuste_', '')
-                try:
-                    ajuste = int(value)
-                    if ajuste == 0:
-                        continue
+            # Procesar ajustes individuales/masivos
+            for key, value in request.POST.items():
+                if key.startswith('ajuste_'):
+                    producto_id = key.replace('ajuste_', '')
+                    p = Producto.objects.get(id=producto_id)
 
-                    # Actualizar stock
-                    stock, created = StockBodega.objects.get_or_create(
-                        producto_id=producto_id,
-                        bodega_id=bodega_id,
-                        defaults={'stock': 0}
-                    )
-                    stock.stock += ajuste
-                    if stock.stock < 0:
-                        messages.error(request, f'El producto ID {producto_id} no puede tener stock negativo')
-                    stock.save()
-                    messages.success(request, f'Stock actualizado para producto ID {producto_id}')
+                    try:
+                        ajuste = int(value)
+                        if ajuste == 0:
+                            continue
+
+                        # Actualizar stock
+                        stock, created = StockBodega.objects.get_or_create(
+                            producto_id=producto_id,
+                            bodega_id=bodega_id,
+                            defaults={'stock': 0}
+                        )
+                        stock.stock += ajuste
+                        if stock.stock < 0:
+                            messages.error(request, f'"{p.nombre_producto}" no puede tener stock negativo')
+                        else:
+                            stock.save()
+                            messages.success(request, f'Stock actualizado para "{p.nombre_producto}"')
                 
-                except (ValueError, IntegrityError) as e:
-                    messages.error(request, f'Error al actualizar producto ID {producto_id}: {str(e)}')
-                    return redirect('stock_productos')                    
+                    except (ValueError, IntegrityError) as e:
+                        messages.error(request, f'Error al actualizar "{p.nombre_producto}": {str(e)}')
+                
+            return redirect(f"{reverse('stock_productos')}?bodega={bodega_id}")                        
 
-        #return render(request, 'comercio/views/stock.html', context)
         # Mantener el render en lugar de redirect
         return render(request, 'comercio/views/stock.html', context)
     
     except Exception as e:
         messages.error(request, f'Error: {str(e)}')
-        #return redirect('stock_productos')
         return render(request, 'comercio/views/stock.html', context)

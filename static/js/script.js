@@ -200,14 +200,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Script para la descarga de CSV de stock
-/*
-function exportToCSV() {
-    const bodegaSelect = document.getElementById('branchSelectBodega');
-    const bodegaId = bodegaSelect.value;
-    window.location.href = `?bodega=${bodegaId}&export=csv`;
-}*/
-
 // Cambio automático del año en el footer
 document.getElementById('year').textContent = new Date().getFullYear();
 
