@@ -20,7 +20,8 @@ from .services import (
     obtener_bodegas,
     obtener_productos_con_stock,
     productos_bodega,
-    exportar_stock_csv
+    exportar_stock_csv,
+    obtener_sucursales
 )
 
 @login_required
@@ -268,3 +269,15 @@ def stock_productos(request) -> HttpResponse | HttpResponseRedirect:
     except Exception as e:
         messages.error(request, f'Error: {str(e)}')
         return render(request, 'comercio/views/stock.html', context)
+    
+@login_required
+def asignacion_sucursales(request) -> HttpResponse | HttpResponseRedirect:
+
+    sucursales = obtener_sucursales()
+
+    return render(request, 'comercio/views/sucursales.html', context = {'sucursales': sucursales})
+
+@login_required
+def asignacion_cajas(request) -> HttpResponse | HttpResponseRedirect:
+    return render(request, 'comercio/views/cajas.html', context = {})
+

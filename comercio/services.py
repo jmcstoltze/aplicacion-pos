@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import transaction, models
 from django.conf import settings
-from .models import Producto, Categoria, Bodega, StockBodega
+from .models import Producto, Categoria, Bodega, StockBodega, Sucursal
 
 def obtener_productos():
     """
@@ -470,4 +470,5 @@ def exportar_stock_csv(productos, bodega_id):
 
     return response
 
-
+def obtener_sucursales():
+    return Sucursal.objects.filter(esta_asignada=False, estado=True).order_by('nombre_sucursal')

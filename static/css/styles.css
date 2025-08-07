@@ -498,3 +498,57 @@ html, body{
     color: var(--color-black);
 }
 
+/* Asignación de sucursales y cajas */
+.bg-custom {
+    background-color: var(--color-orange-background);
+    color: white;
+}
+
+.active-custom {
+    background-color: black;
+    color: white;
+}
+
+.active-custom:hover {
+    background-color: var(--color-input-shadow);
+    color: black;
+    /* border-color: #2A2A2A;*/
+}
+
+.bg-custom-black {
+    background-color: black;
+}
+
+#sucursalSelect {
+    background-color: var(--color-white); /* Color de fondo oscuro */
+    color: #2e2e2e;
+    border-radius: 5px;
+}
+
+#sucursalSelect:focus {
+    box-shadow: 0 0 0 0.25rem var(--color-input-shadow);
+    border: 0.5px solid var(--color-input-focus);
+}
+
+/* Personalización de las opciones */
+#sucursalSelect option {
+    background: var(--color-white);
+    color: var(--color-black);
+}
+
+#cajaSelect {
+    background-color: var(--color-white); /* Color de fondo oscuro */
+    color: #2e2e2e;
+    border-radius: 5px;
+}
+
+#cajaSelect:focus {
+    box-shadow: 0 0 0 0.25rem var(--color-input-shadow);
+    border: 0.5px solid var(--color-input-focus);
+}
+
+/* Personalización de las opciones */
+#cajaSelect option {
+    background: var(--color-white);
+    color: var(--color-black);
+}
