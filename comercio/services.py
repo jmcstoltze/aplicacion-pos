@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import transaction, models
 from django.conf import settings
-from .models import Producto, Categoria, Bodega, StockBodega, Sucursal
+from .models import Producto, Categoria, Bodega, StockBodega, Sucursal, Usuario
 
 def obtener_productos():
     """
@@ -472,3 +472,6 @@ def exportar_stock_csv(productos, bodega_id):
 
 def obtener_sucursales():
     return Sucursal.objects.filter(esta_asignada=False, estado=True).order_by('nombre_sucursal')
+
+#def obtener_jefes_local():
+ #   return Usuario.objects.filter(rol__nombre_rol=Rol.JEFE_LOCAL, estado=True).#order_by('ap_paterno', 'ap_materno', 'nombres')

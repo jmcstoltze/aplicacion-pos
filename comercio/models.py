@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 
-from usuarios.models import Comuna
+from usuarios.models import Comuna, Usuario
 
 # Representa al comercio involucrado en el negocio
 class Comercio(models.Model):
@@ -66,6 +66,7 @@ class Sucursal(models.Model):
         dirección (CharField): Dirección de la sucursal.
         es_casa_matriz (BooleanField): Indica si es la sede principal del comercio.
         esta_asignada (BooleanField): Indica si la sucursal tiene asignación operativa.
+        jefe_asignado (IntegerField): Indica el jefe de local al cual se le asigna la sucursal.
         estado (BooleanField): Estado activo/inactivo de la sucursal.
         comercio (ForeignKey): Relación con el Comercio al que pertenece.
         comuna (ForeignKey): Ubicación geográfica referencial.
@@ -98,6 +99,11 @@ class Sucursal(models.Model):
         default=False, # No asignada por defecto
         verbose_name = "Asignada",
         help_text="Indica si la sucursal está asignada o no")
+    jefe_asignado = models.OneToOneField(
+        Usuario, on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        help_text="Jefe de local al cual se le asigna la sucursal")
     estado = models.BooleanField(
         default=True, # Activa por defecto
         verbose_name = "Activa",

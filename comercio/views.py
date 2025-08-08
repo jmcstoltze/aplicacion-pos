@@ -8,7 +8,8 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
-from .models import Producto, StockBodega, Bodega
+from comercio.models import Producto, StockBodega, Bodega, Sucursal
+from usuarios.models import Rol, Usuario
 from .services import (
     obtener_productos,
     obtener_categorias,
@@ -273,9 +274,51 @@ def stock_productos(request) -> HttpResponse | HttpResponseRedirect:
 @login_required
 def asignacion_sucursales(request) -> HttpResponse | HttpResponseRedirect:
 
-    sucursales = obtener_sucursales()
+    # Obtener todas las sucursales activas no asignadas
+    # sucursales = obtener_sucursales()
+    sucursales = Sucursal.objects.filter(
+        esta_asignada=False, 
+        estado=True
+    ).order_by('nombre_sucursal')
 
-    return render(request, 'comercio/views/sucursales.html', context = {'sucursales': sucursales})
+    # Obtener todos los jefes de local activos
+    # jefes_local = obtener_jefes_local()
+    jefes_local = Usuario.objects.filter(
+        rol__nombre_rol=Rol.JEFE_LOCAL,
+        estado=True
+    ).order_by('ap_paterno', 'ap_materno', 'nombres')
+
+    if request.method == 'POST':
+        jefe_id = request.POST.get('sucursal_id')
+        sucursal_id = request.POST.get('sucursal_id')
+
+        try:
+            jefe = Usuario.objects.get(id=jefe_id)
+            sucursal = Sucursal.objects.get(id=sucursal_id)
+
+            # Verificar si el jefe ya tiene sucursal asignada
+            if Sucursal.objects.filter(jefe_asignado=jefe, estado=True).exists():
+                messages.warning(request, "Este jefe ya tiene una sucursal asignada")
+                return redirect('asignacion_sucursales')
+
+            # Asignar jefe a sucursal
+            sucursal.jefe_asignado = jefe
+            sucursal.esta_asignada = True
+            sucursal.save()
+
+            messages.success(request, f"Se asignó {sucursal.nombre_sucursal} a {jefe.nombres} {jefe.ap_paterno}")
+
+        except Usuario.DoesNotExist:
+            messages.error(request, "Jefe de local no encontrado")
+        except Sucursal.DoesNotExist:
+            messages.error(request, "Sucursal no encontrada o ya está asignada")            
+        except Exception as e:
+            messages.error(request, f"Error al asignar: {str(e)}")
+
+    return render(request, 'comercio/views/sucursales.html', {
+        'sucursales': sucursales,
+        'jefes': jefes_local
+        })
 
 @login_required
 def asignacion_cajas(request) -> HttpResponse | HttpResponseRedirect:

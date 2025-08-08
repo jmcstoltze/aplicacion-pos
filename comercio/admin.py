@@ -52,11 +52,13 @@ class SucursalInline(admin.TabularInline):
 
 @admin.register(Sucursal)
 class SucursalAdmin(admin.ModelAdmin):
-    list_display = ('nombre_sucursal', 'comercio_id', 'comuna', 'es_casa_matriz', 'estado', 'esta_asignada')
-    list_filter = ('comercio_id', 'comuna__region', 'es_casa_matriz', 'estado', 'esta_asignada')
-    search_fields = ('nombre_sucursal', 'comercio_id__nombre_comercio', 'direccion')
+    list_display = ('nombre_sucursal', 'comercio_id', 'comuna', 'es_casa_matriz', 'estado', 'esta_asignada', 'get_jefe_asignado')
+    list_filter = ('comercio_id', 'comuna__region', 'es_casa_matriz', 'estado', 'esta_asignada', 'jefe_asignado')
+    search_fields = ('nombre_sucursal', 'comercio_id__nombre_comercio', 'direccion', 'jefe_asignado__nombres', 'jefe_asignado__ap_paterno')
     list_editable = ('estado', 'esta_asignada')
     actions = ['export_to_csv']
+    raw_id_fields = ['jefe_asignado']  # Para mejor rendimiento con muchos usuarios
+    autocomplete_fields = ['jefe_asignado']  # Habilita búsqueda con autocompletado
     
     fieldsets = (
         ('Información Básica', {
@@ -65,10 +67,17 @@ class SucursalAdmin(admin.ModelAdmin):
         ('Contacto', {
             'fields': ('email', 'telefono', 'direccion', 'comuna')
         }),
-        ('Estado', {
-            'fields': ('estado', 'esta_asignada')
-        }),
+        ('Asignaciones', {
+            'fields': ('jefe_asignado', 'estado', 'esta_asignada')
+        })
     )
+
+    def get_jefe_asignado(self, obj):
+        if obj.jefe_asignado:
+            return f"{obj.jefe_asignado.nombres} {obj.jefe_asignado.ap_paterno} ({obj.jefe_asignado.rut})"
+        return "No asignado"
+    get_jefe_asignado.short_description = 'Jefe Asignado'
+    get_jefe_asignado.admin_order_field = 'jefe_asignado'
 
     def export_to_csv(self, request, queryset):
         response = HttpResponse(content_type='text/csv')
@@ -78,7 +87,8 @@ class SucursalAdmin(admin.ModelAdmin):
         writer = csv.writer(response)
         writer.writerow([
             'Nombre Sucursal', 'Comercio', 'Casa Matriz', 'Dirección', 
-            'Comuna', 'Región', 'Teléfono', 'Email', 'Estado', 'Asignada'
+            'Comuna', 'Región', 'Teléfono', 'Email', 'Estado', 'Asignada',
+            'Jefe Asignado', 'RUT Jefe', 'Teléfono Jefe'
         ])
 
         for sucursal in queryset:
@@ -92,7 +102,10 @@ class SucursalAdmin(admin.ModelAdmin):
                 f"+{sucursal.telefono[:3]} {sucursal.telefono[3:]}",
                 sucursal.email,
                 'Activa' if sucursal.estado else 'Inactiva',
-                'Sí' if sucursal.esta_asignada else 'No'
+                'Sí' if sucursal.esta_asignada else 'No',
+                f"{sucursal.jefe_asignado.nombres} {sucursal.jefe_asignado.ap_paterno}" if sucursal.jefe_asignado else '',
+                sucursal.jefe_asignado.rut if sucursal.jefe_asignado else '',
+                sucursal.jefe_asignado.telefono if sucursal.jefe_asignado else ''
             ])
 
         return response

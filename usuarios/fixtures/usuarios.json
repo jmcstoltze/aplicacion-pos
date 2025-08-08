@@ -44,7 +44,55 @@
             "telefono": "+569 6666 5555",
             "direccion": "Av de Prueba 789",
             "comuna": 277,
-            "rol": 3
+            "rol": 2
+        }
+    },
+    {
+        "model": "usuarios.usuario",
+        "pk": 4,
+        "fields": {
+            "usuario": 5,
+            "rut": "11222333-4",
+            "nombres": "Carlos",
+            "ap_paterno": "Pérez",
+            "ap_materno": "Millas",
+            "email": "carlos.perez@gmail.com",
+            "telefono": "+569 9999 8888",
+            "direccion": "Av de Prueba 222",
+            "comuna": 278,
+            "rol": 2
+        }
+    },
+    {
+        "model": "usuarios.usuario",
+        "pk": 5,
+        "fields": {
+            "usuario": 6,
+            "rut": "11555666-7",
+            "nombres": "Lucía",
+            "ap_paterno": "Valdes",
+            "ap_materno": "Valdes",
+            "email": "lucia.valdes@gmail.com",
+            "telefono": "+569 7777 5555",
+            "direccion": "Av de Prueba 333",
+            "comuna": 274,
+            "rol": 2
+        }
+    },
+    {
+        "model": "usuarios.usuario",
+        "pk": 6,
+        "fields": {
+            "usuario": 7,
+            "rut": "15444333-2",
+            "nombres": "Tadeo Miguel",
+            "ap_paterno": "García",
+            "ap_materno": "Ruz",
+            "email": "tadeo.garcia@gmail.com",
+            "telefono": "+569 8877 6655",
+            "direccion": "Av de Prueba 996",
+            "comuna": 278,
+            "rol": 2
         }
     }
 ]

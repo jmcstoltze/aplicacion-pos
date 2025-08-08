@@ -20,10 +20,14 @@
                         {% endfor %}                        
                     </select>                
                 </form>
-            </div>
-        
+            </div>            
+
+            <div class="col-md-3" style="padding-top: 8px;">
+                <a href="{% url 'edicion_productos' %}">Editar Productos</a>
+            </div> 
+
             <!-- Contador de resultados -->
-            <div class="col-md-6 text-md-end">
+            <div class="col-md-3 text-md-end"> 
                 <small class="text-muted" id="resultCount">{{ total_productos }} productos</small><br>
                 <small class="text-muted" id="resultCount">{{ productos_con_stock }} productos con stock</small>
             </div>
