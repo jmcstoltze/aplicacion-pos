@@ -28,19 +28,22 @@
                             <div class="card-body">
                                 <div class="input-group mb-3">
                                     <input type="text" class="form-control" placeholder="Buscar..." id="searchJefes">
-                                    <button class="btn btn-outline-secondary" type="button">
+                                    <button class="btn btn-outline-secondary" type="button" id="btnSearchJefes">
                                         <i class="bi bi-search"></i>
                                     </button>
+                                    <button class="btn btn-outline-secondary" type="button" id="btnClearSearch" title="Limpiar búsqueda">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
                                 </div>
-                                <div class="list-group" style="max-height: 400px; overflow-y: auto;">
+                                <div class="list-group" style="max-height: 400px; overflow-y: auto;" id="jefesList">
                                     {% if jefes %}
                                         {% for jefe in jefes %}
                                         <a href="" class="list-group-item list-group-item-action jefe-item {% if jefe.sucursal_set.exists %}active-custom{% endif %}" data-jefe-id="{{ jefe.id }}">
                                             <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
-                                                <div class="me-4">{{ jefe.ap_paterno }} {{ jefe.ap_materno }}, {{ jefe.nombres }}</div>
-                                                <span class="badge {% if jefe.sucursal_set.exists %}bg-custom{% else %}bg-secondary{% endif %}">
-                                                    {% if jefe.sucursal_set.exists %}
-                                                        {{ jefe.sucursal_set.first.nombre_sucursal }}
+                                                <div class="me-4 jefe-nombre">{{ jefe.ap_paterno }} {{ jefe.ap_materno }}, {{ jefe.nombres }}</div>
+                                                <span class="badge {% if jefe.sucursal %}bg-custom{% else %}bg-secondary{% endif %}">
+                                                    {% if jefe.sucursal %}
+                                                        {{ jefe.sucursal.nombre_sucursal }}
                                                     {% else %}
                                                         Sin asignar
                                                     {% endif %}

@@ -94,5 +94,53 @@
             "comuna": 278,
             "rol": 2
         }
+    },
+    {
+        "model": "usuarios.usuario",
+        "pk": 7,
+        "fields": {
+            "usuario": 8,
+            "rut": "16555444-3",
+            "nombres": "Daniela Andrea",
+            "ap_paterno": "Ferreira",
+            "ap_materno": "López",
+            "email": "daniela.ferreira@gmail.com",
+            "telefono": "+569 8877 6655",
+            "direccion": "Av de Prueba 555",
+            "comuna": 263,
+            "rol": 3
+        }
+    },
+    {
+        "model": "usuarios.usuario",
+        "pk": 8,
+        "fields": {
+            "usuario": 9,
+            "rut": "17888999-1",
+            "nombres": "Sara Alejandra",
+            "ap_paterno": "Milla",
+            "ap_materno": "Contreras",
+            "email": "sara.milla@gmail.com",
+            "telefono": "+569 2222 4444",
+            "direccion": "Av de Prueba 1256 depto 406",
+            "comuna": 264,
+            "rol": 3
+        }
+    },
+    {
+        "model": "usuarios.usuario",
+        "pk": 9,
+        "fields": {
+            "usuario": 10,
+            "rut": "15345678-9",
+            "nombres": "Manuel José",
+            "ap_paterno": "Ayala",
+            "ap_materno": "Jaramillo",
+            "email": "manuel.ayala@gmail.com",
+            "telefono": "+569 2222 4444",
+            "direccion": "Av de Prueba 308 depto 20",
+            "comuna": 267,
+            "rol": 3
+        }
     }
 ]

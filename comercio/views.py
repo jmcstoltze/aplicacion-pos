@@ -274,19 +274,20 @@ def stock_productos(request) -> HttpResponse | HttpResponseRedirect:
 @login_required
 def asignacion_sucursales(request) -> HttpResponse | HttpResponseRedirect:
 
-    # Obtener todas las sucursales activas no asignadas
-    # sucursales = obtener_sucursales()
-    sucursales = Sucursal.objects.filter(
-        esta_asignada=False, 
+    # Obtener todas las sucursales activas (tanto asignadas como no asignadas)
+    sucursales = Sucursal.objects.filter(estado=True).order_by('nombre_sucursal')
+    
+    # Obtener sucursales sin jefe asignado
+    sucursales_sin_jefe = Sucursal.objects.filter(
+        jefe_asignado__isnull=True, 
         estado=True
     ).order_by('nombre_sucursal')
 
     # Obtener todos los jefes de local activos
-    # jefes_local = obtener_jefes_local()
     jefes_local = Usuario.objects.filter(
         rol__nombre_rol=Rol.JEFE_LOCAL,
         estado=True
-    ).order_by('ap_paterno', 'ap_materno', 'nombres')
+    ).order_by('ap_paterno', 'ap_materno', 'nombres') # Todos los jefes de local
 
     if request.method == 'POST':
         jefe_id = request.POST.get('sucursal_id')
@@ -316,8 +317,9 @@ def asignacion_sucursales(request) -> HttpResponse | HttpResponseRedirect:
             messages.error(request, f"Error al asignar: {str(e)}")
 
     return render(request, 'comercio/views/sucursales.html', {
-        'sucursales': sucursales,
-        'jefes': jefes_local
+        'sucursales': sucursales_sin_jefe,
+        'jefes': jefes_local,
+        'todas_sucursales': jefes_local
         })
 
 @login_required

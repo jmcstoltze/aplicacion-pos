@@ -56,12 +56,12 @@
         "model": "comercio.sucursal",
         "pk": 5,
         "fields": {
-            "nombre_sucursal": "Sucursal Costa",
-            "email": "contacto_costa@musichallstudio.com",
+            "nombre_sucursal": "Sucursal Poniente",
+            "email": "contacto_poniente@musichallstudio.com",
             "telefono": "569 8877 6655",
-            "direccion": "Avenida Costanera 333",            
+            "direccion": "Avenida Poniente 333",            
             "comercio_id": 1,
-            "comuna": 41
+            "comuna": 261
         }
     }
 ]
