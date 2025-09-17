@@ -142,5 +142,37 @@
             "comuna": 267,
             "rol": 3
         }
+    },
+    {
+        "model": "usuarios.usuario",
+        "pk": 10,
+        "fields": {
+            "usuario": 11,
+            "rut": "14222111-3",
+            "nombres": "Luis Alberto",
+            "ap_paterno": "Contreras",
+            "ap_materno": "Pérez",
+            "email": "luis.contreras@gmail.com",
+            "telefono": "+569 3333 5566",
+            "direccion": "Av de Prueba 405 depto 308",
+            "comuna": 264,
+            "rol": 3
+        }
+    },
+    {
+        "model": "usuarios.usuario",
+        "pk": 12,
+        "fields": {
+            "usuario": 13,
+            "rut": "17654456-7",
+            "nombres": "Gustavo Adolfo",
+            "ap_paterno": "López",
+            "ap_materno": "Gutierrez",
+            "email": "gustavo.lopez@gmail.com",
+            "telefono": "+569 8888 6666",
+            "direccion": "Av de Prueba 5555",
+            "comuna": 261,
+            "rol": 3
+        }
     }
 ]

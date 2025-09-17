@@ -31,5 +31,13 @@
             "nombre_bodega": "Bodega Sur",
             "sucursal_id": 4
         }
+    },
+    {
+        "model": "comercio.bodega",
+        "pk": 5,
+        "fields": {
+            "nombre_bodega": "Bodega Poniente",
+            "sucursal_id": 5
+        }
     }
 ]

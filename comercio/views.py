@@ -274,52 +274,80 @@ def stock_productos(request) -> HttpResponse | HttpResponseRedirect:
 @login_required
 def asignacion_sucursales(request) -> HttpResponse | HttpResponseRedirect:
 
-    # Obtener todas las sucursales activas (tanto asignadas como no asignadas)
+    # Obtener todas las sucursales activas
     sucursales = Sucursal.objects.filter(estado=True).order_by('nombre_sucursal')
-    
-    # Obtener sucursales sin jefe asignado
-    sucursales_sin_jefe = Sucursal.objects.filter(
-        jefe_asignado__isnull=True, 
-        estado=True
-    ).order_by('nombre_sucursal')
 
     # Obtener todos los jefes de local activos
     jefes_local = Usuario.objects.filter(
         rol__nombre_rol=Rol.JEFE_LOCAL,
         estado=True
-    ).order_by('ap_paterno', 'ap_materno', 'nombres') # Todos los jefes de local
+    ).select_related('sucursal').order_by('ap_paterno', 'ap_materno', 'nombres')
+
+    # Variable para el jefe seleccionado (si viene de un POST)
+    jefe_seleccionado = None
+    jefe_seleccionado_id = request.POST.get('jefe_id') if request.method == 'POST' else None
 
     if request.method == 'POST':
-        jefe_id = request.POST.get('sucursal_id')
+        jefe_id = request.POST.get('jefe_id')
         sucursal_id = request.POST.get('sucursal_id')
 
-        try:
-            jefe = Usuario.objects.get(id=jefe_id)
-            sucursal = Sucursal.objects.get(id=sucursal_id)
+        if not jefe_id:
+            messages.error(request, "Debe seleccionar un jefe de local")
+        
+        elif not sucursal_id:            
+            messages.error(request, "Debe seleccionar una sucursal")        
+        else:            
+            try:
+                jefe = Usuario.objects.get(id=jefe_id, estado=True)
+                sucursal = Sucursal.objects.get(id=sucursal_id, estado=True)
 
-            # Verificar si el jefe ya tiene sucursal asignada
-            if Sucursal.objects.filter(jefe_asignado=jefe, estado=True).exists():
-                messages.warning(request, "Este jefe ya tiene una sucursal asignada")
+                # Verificar si el jefe ya tiene una sucursal asignada
+                sucursal_anterior = Sucursal.objects.filter(jefe_asignado=jefe, estado=True).first()
+            
+                # Si ya tiene sucursal, desasignarla primero
+                if sucursal_anterior:
+                    sucursal_anterior.jefe_asignado = None
+                    sucursal_anterior.esta_asignada = False
+                    sucursal_anterior.save()
+                    messages.info(request, f"Se deasignó {sucursal_anterior.nombre_sucursal}")
+
+                # Verificar si la nueva sucursal ya tiene jefe
+                if sucursal.jefe_asignado and sucursal.jefe_asignado != jefe:
+
+                    # Desasignar al jefe actual de esa sucursal
+                    jefe_anterior = sucursal.jefe_asignado
+                    sucursal.jefe_asignado = None
+                    sucursal.esta_asignada = False
+                    sucursal.save()
+                    messages.info(request, f"Se desasignó {sucursal.nombre_sucursal} de {jefe_anterior.nombres} {jefe_anterior.ap_paterno}")
+
+                # Asignar jefe a la nueva sucursal
+                sucursal.jefe_asignado = jefe
+                sucursal.esta_asignada = True
+                sucursal.save()
+
+                messages.success(request, f"Se asignó {sucursal.nombre_sucursal} a {jefe.nombres} {jefe.ap_paterno}")
                 return redirect('asignacion_sucursales')
 
-            # Asignar jefe a sucursal
-            sucursal.jefe_asignado = jefe
-            sucursal.esta_asignada = True
-            sucursal.save()
+            except Usuario.DoesNotExist:
+                messages.error(request, "Jefe de local no encontrado")
+            except Sucursal.DoesNotExist:
+                messages.error(request, "Sucursal no encontrada")            
+            except Exception as e:
+                messages.error(request, f"Error al asignar: {str(e)}")
 
-            messages.success(request, f"Se asignó {sucursal.nombre_sucursal} a {jefe.nombres} {jefe.ap_paterno}")
-
+    # Si hay un jefe seleccionado (después de POST), obtener sus datos
+    if jefe_seleccionado_id:
+        try:
+            jefe_seleccionado = Usuario.objects.get(id=jefe_seleccionado_id)
         except Usuario.DoesNotExist:
-            messages.error(request, "Jefe de local no encontrado")
-        except Sucursal.DoesNotExist:
-            messages.error(request, "Sucursal no encontrada o ya está asignada")            
-        except Exception as e:
-            messages.error(request, f"Error al asignar: {str(e)}")
+            pass
 
     return render(request, 'comercio/views/sucursales.html', {
-        'sucursales': sucursales_sin_jefe,
+        'sucursales': sucursales,
         'jefes': jefes_local,
-        'todas_sucursales': jefes_local
+        'jefe_seleccionado': jefe_seleccionado,
+        'jefe_seleccionado_id': jefe_seleccionado_id
         })
 
 @login_required

@@ -5,6 +5,21 @@
 
 {% block sucursales_content %}
 
+    <!-- Mensajes de Django -->
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Contenedor para almacenar el jefe seleccionado (para JS) -->
+    <div id="jefes-container" data-selected-jefe="{{ jefe_seleccionado_id|default:'' }}" style="display: none;"></div>
+
     <div class="container-fluid mt-4">
         <!-- Pestaña única -->
         <ul class="nav nav-tabs" id="adminTabs" role="tablist">
@@ -27,7 +42,7 @@
                             </div>
                             <div class="card-body">
                                 <div class="input-group mb-3">
-                                    <input type="text" class="form-control" placeholder="Buscar..." id="searchJefes">
+                                    <input type="text" class="form-control" placeholder="Buscar..." id="searchJefes">                                    
                                     <button class="btn btn-outline-secondary" type="button" id="btnSearchJefes">
                                         <i class="bi bi-search"></i>
                                     </button>
@@ -38,7 +53,8 @@
                                 <div class="list-group" style="max-height: 400px; overflow-y: auto;" id="jefesList">
                                     {% if jefes %}
                                         {% for jefe in jefes %}
-                                        <a href="" class="list-group-item list-group-item-action jefe-item {% if jefe.sucursal_set.exists %}active-custom{% endif %}" data-jefe-id="{{ jefe.id }}">
+                                        <a href="#" class="list-group-item list-group-item-action jefe-item {% if jefe.sucursal %}active-custom{% endif %}" data-jefe-id="{{ jefe.id }}"
+                                        data-sucursal-id="{% if jefe.sucursal %}{{ jefe.sucursal.id }}{% endif %}">
                                             <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
                                                 <div class="me-4 jefe-nombre">{{ jefe.ap_paterno }} {{ jefe.ap_materno }}, {{ jefe.nombres }}</div>
                                                 <span class="badge {% if jefe.sucursal %}bg-custom{% else %}bg-secondary{% endif %}">
@@ -53,7 +69,7 @@
                                         {% endfor %}
                                     {% else %}
                                         <div class="alert alert-warning">No hay jefes de local disponibles</div>
-                                    {% endif %}                                      
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -69,11 +85,17 @@
                                 <!-- Formulario de asignación -->
                                 <form id="asignarSucursalForm" method="POST" action="{% url 'asignacion_sucursales' %}">
                                     {% csrf_token %}
-                                    <input type="hidden" name="jefe_id" id="jefeIdInput">    
+                                    <input type="hidden" name="jefe_id" id="jefeIdInput" value="{{ jefe_seleccionado_id|default:'' }}">    
 
                                     <div class="mb-3">
                                         <label class="form-label">Jefe de local seleccionado:</label>
-                                        <div class="form-control" id="jefeSeleccionadoText">Ningún jefe seleccionado</div>
+                                        <div class="form-control" id="jefeSeleccionadoText">
+                                            {% if jefe_seleccionado %}
+                                                {{ jefe_seleccionado.ap_paterno }} {{ jefe_seleccionado.ap_materno }}, {{ jefe_seleccionado.nombres }}
+                                            {% else %}
+                                                Ningún jefe seleccionado
+                                            {% endif %}
+                                        </div>
                                     </div>                                    
                                     {% if sucursales %}                                
                                     <div class="mb-3">
@@ -81,7 +103,7 @@
                                         <select class="form-select" id="sucursalSelect" name="sucursal_id" required>
                                             <option value="">Seleccione una sucursal</option>
                                             {% for sucursal in sucursales %}
-                                            <option value="{{ sucursal.id }}">
+                                            <option value="{{ sucursal.id }}" {% if jefe_seleccionado and jefe_seleccionado.sucursal_set.first.id == sucursal.id %}selected{% endif %}>
                                                 {{ sucursal.nombre_sucursal }}
                                                 {% if sucursal.es_casa_matriz %}(Casa Matriz){% endif %}
                                             </option>
@@ -94,7 +116,7 @@
                                         <div class="alert alert-warning">No hay sucursales disponibles</div>
                                     {% endif %}
 
-                                    <button type="button" class="btn btn-solid-orange" data-bs-toggle="modal" data-bs-target="#confirmModal">
+                                    <button type="button" id="btnGuardarCambios" class="btn btn-solid-orange" data-bs-toggle="modal" data-bs-target="#confirmModal" disabled>
                                         <i class="bi bi-save me-2"></i>Guardar Cambios
                                     </button>
                                 </form>
@@ -133,10 +155,143 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-solid-orange">Confirmar</button>
+                    <button type="button" class="btn btn-solid-orange" id="confirmSaveButton">Confirmar</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+    //////////////// asignar sucursales ////////////////
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Elementos del DOM
+        const jefeItems = document.querySelectorAll('.jefe-item');
+        const jefeIdInput = document.getElementById('jefeIdInput');
+        const jefeSeleccionadoText = document.getElementById('jefeSeleccionadoText');
+        const sucursalSelect = document.getElementById('sucursalSelect');
+        const searchJefesInput = document.getElementById('searchJefes');
+        const btnSearchJefes = document.getElementById('btnSearchJefes');
+        const btnClearSearch = document.getElementById('btnClearSearch');
+        const jefesList = document.getElementById('jefesList');
+        const btnGuardarCambios = document.getElementById('btnGuardarCambios');
+
+        // Obtener el jefe seleccionado desde el data attribute
+        const jefesContainer = document.getElementById('jefes-container');
+        const jefeSeleccionadoIdFromServer = jefesContainer ? jefesContainer.getAttribute('data-selected-jefe') : '';
+
+        let jefeSeleccionadoNombre = "";
+        let jefeSeleccionadoId = null;
+        let jefeSeleccionadoSucursalId = null;
+
+        // Función para habilitar/deshabilitar el botón de guardar
+        function actualizarEstadoBotonGuardar() {
+            if (jefeSeleccionadoId && sucursalSelect.value) {
+                btnGuardarCambios.disabled = false;
+            } else {
+                btnGuardarCambios.disabled = true;
+            }
+        }
+
+        // Función para seleccionar un jefe
+        function seleccionarJefe(item) {
+            // Remover clases activas de todos los items
+            jefeItems.forEach(i => i.classList.remove('active', 'active-custom'));
+
+            // Agregar clases activas al item seleccionado
+            item.classList.add('active', 'active-custom');
+
+            // Obtener datos del jefe
+            jefeSeleccionadoId = item.getAttribute('data-jefe-id');
+            jefeSeleccionadoNombre = item.querySelector('.jefe-nombre').textContent.trim();
+            jefeSeleccionadoSucursalId = item.getAttribute('data-sucursal-id') || null;
+
+            // Actualizar formulario
+            jefeIdInput.value = jefeSeleccionadoId;
+            jefeSeleccionadoText.textContent = jefeSeleccionadoNombre;
+
+            // Seleccionar la sucursal actual en el dropdown
+            if (jefeSeleccionadoSucursalId) {
+                sucursalSelect.value = jefeSeleccionadoSucursalId;
+            } else {
+                sucursalSelect.value = '';
+            }
+
+            // Actualizar estado del botón de guardar
+            actualizarEstadoBotonGuardar();
+        }
+
+        // Restaurar selección después de POST si existe
+        if (jefeSeleccionadoIdFromServer) {
+            const jefeSeleccionadoItem = document.querySelector(`.jefe-item[data-jefe-id="${jefeSeleccionadoIdFromServer}"]`);
+            
+            if (jefeSeleccionadoItem) {
+                seleccionarJefe(jefeSeleccionadoItem);
+            }
+        }
+
+        // Función para buscar jefes
+        function buscarJefes() {
+            const searchText = searchJefesInput.value.toLowerCase();
+            // const jefeItems = jefesList.querySelectorAll('.jefe-item');
+            const jefeItems = document.querySelectorAll('.jefe-item');
+
+            jefeItems.forEach(item => {
+                const nombreCompleto = item.querySelector('.jefe-nombre').textContent.toLowerCase();
+                if (nombreCompleto.includes(searchText)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Event listeners
+        jefeItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                seleccionarJefe(this);
+            });
+        });
+
+        // Actualizar estado del botón cuando cambia la selección de sucursal
+        sucursalSelect.addEventListener('change', actualizarEstadoBotonGuardar);
+
+        btnSearchJefes.addEventListener('click', buscarJefes);
+        searchJefesInput.addEventListener('keyup', buscarJefes);
+    
+        btnClearSearch.addEventListener('click', function() {
+            searchJefesInput.value = '';
+            buscarJefes();
+        });
+
+        // Modal de confirmación
+        var confirmModal = document.getElementById('confirmModal');
+        confirmModal.addEventListener('show.bs.modal', function (event) {
+            // Validar que se haya seleccionado un jefe y una sucursal
+            if (!jefeSeleccionadoId || !sucursalSelect.value) {
+                document.getElementById('modalConfirmBody').innerHTML = 
+                    '<div class="alert alert-warning">Debe seleccionar un jefe y una sucursal antes de confirmar</div>';
+                event.preventDefault();
+                return;
+            }
+        
+            // Obtener valores seleccionados
+            const sucursalNombre = sucursalSelect.options[sucursalSelect.selectedIndex]?.text || "Ninguna sucursal seleccionada";
+        
+            // Mensaje dinámico
+            document.getElementById('modalConfirmBody').innerHTML =
+                `<p>¿Confirmas asignar <strong>${sucursalNombre}</strong> a <strong>${jefeSeleccionadoNombre}</strong>?</p>`;
+        });
+
+        // Confirmar y enviar formulario
+        confirmModal.querySelector('.btn-solid-orange').addEventListener('click', function() {
+            document.getElementById('asignarSucursalForm').submit();
+        });
+
+        // Inicializar estado del botón
+        actualizarEstadoBotonGuardar();
+    });    
+    </script>
 
 {% endblock %}

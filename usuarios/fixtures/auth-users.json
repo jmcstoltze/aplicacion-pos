@@ -101,7 +101,43 @@
         "fields": {
             "password": "pbkdf2_sha256$1000000$f7XnHGciW2QDC41q2gJM6E$Ig2F9ORTUDCjNJ9gCRULlTBZE94oV17enoHT9g9OfjE=",            
             "is_superuser": false,
-            "username": "mjlopez",
+            "username": "mjayala",
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2025-08-06T00:00:00Z"
+        }
+    },
+    {
+        "model": "auth.user",
+        "pk": 11,
+        "fields": {
+            "password": "pbkdf2_sha256$1000000$f7XnHGciW2QDC41q2gJM6E$Ig2F9ORTUDCjNJ9gCRULlTBZE94oV17enoHT9g9OfjE=",            
+            "is_superuser": false,
+            "username": "lcontreras",
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2025-08-06T00:00:00Z"
+        }
+    },
+    {
+        "model": "auth.user",
+        "pk": 12,
+        "fields": {
+            "password": "pbkdf2_sha256$1000000$f7XnHGciW2QDC41q2gJM6E$Ig2F9ORTUDCjNJ9gCRULlTBZE94oV17enoHT9g9OfjE=",            
+            "is_superuser": false,
+            "username": "mjsepulveda",
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2025-08-06T00:00:00Z"
+        }
+    },
+    {
+        "model": "auth.user",
+        "pk": 13,
+        "fields": {
+            "password": "pbkdf2_sha256$1000000$f7XnHGciW2QDC41q2gJM6E$Ig2F9ORTUDCjNJ9gCRULlTBZE94oV17enoHT9g9OfjE=",            
+            "is_superuser": false,
+            "username": "glopez",
             "is_staff": false,
             "is_active": true,
             "date_joined": "2025-08-06T00:00:00Z"

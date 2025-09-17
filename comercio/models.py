@@ -115,7 +115,7 @@ class Sucursal(models.Model):
     comuna = models.ForeignKey(
         Comuna, on_delete=models.PROTECT, # Eliminación protegida
         help_text="Comuna de la dirección de la sucursal",
-        related_name="comuna")
+        related_name="sucursales_comuna")
     
     def __str__(self):
         """Representación legible que incluye estado de casa matriz."""
@@ -175,8 +175,8 @@ class Bodega(models.Model):
             sucursal_str = f" - {self.sucursal.nombre_sucursal}"
             if self.sucursal.es_casa_matriz:
                 sucursal_str += " (CASA MATRIZ)"
-            else:
-                sucursal_str = " - Sin sucursal"
+        else:
+            sucursal_str = " - Sin sucursal"
 
         return f"{self.nombre_bodega}{principal_str}{sucursal_str}"
     

@@ -505,12 +505,13 @@ html, body{
 }
 
 .active-custom {
-    background-color: black;
-    color: white;
+    /* background-color: black; */
+    background-color: var(--color-input-shadow);
+    /* color: white; */
 }
 
 .active-custom:hover {
-    background-color: var(--color-input-shadow);
+    /* background-color: var(--color-input-shadow); */
     color: black;
     /* border-color: #2A2A2A;*/
 }

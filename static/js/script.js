@@ -246,4 +246,3 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-//////////////// asignar sucursales ////////////////

@@ -52,9 +52,9 @@ class SucursalInline(admin.TabularInline):
 
 @admin.register(Sucursal)
 class SucursalAdmin(admin.ModelAdmin):
-    list_display = ('nombre_sucursal', 'comercio_id', 'comuna', 'es_casa_matriz', 'estado', 'esta_asignada', 'get_jefe_asignado')
-    list_filter = ('comercio_id', 'comuna__region', 'es_casa_matriz', 'estado', 'esta_asignada', 'jefe_asignado')
-    search_fields = ('nombre_sucursal', 'comercio_id__nombre_comercio', 'direccion', 'jefe_asignado__nombres', 'jefe_asignado__ap_paterno')
+    list_display = ('nombre_sucursal', 'comercio', 'comuna', 'es_casa_matriz', 'estado', 'esta_asignada', 'get_jefe_asignado')
+    list_filter = ('comercio', 'comuna__region', 'es_casa_matriz', 'estado', 'esta_asignada', 'jefe_asignado')
+    search_fields = ('nombre_sucursal', 'comercio__nombre_comercio', 'direccion', 'jefe_asignado__nombres', 'jefe_asignado__ap_paterno')
     list_editable = ('estado', 'esta_asignada')
     actions = ['export_to_csv']
     raw_id_fields = ['jefe_asignado']  # Para mejor rendimiento con muchos usuarios
@@ -62,7 +62,7 @@ class SucursalAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Información Básica', {
-            'fields': ('nombre_sucursal', 'comercio_id', 'es_casa_matriz')
+            'fields': ('nombre_sucursal', 'comercio', 'es_casa_matriz')
         }),
         ('Contacto', {
             'fields': ('email', 'telefono', 'direccion', 'comuna')
@@ -94,7 +94,7 @@ class SucursalAdmin(admin.ModelAdmin):
         for sucursal in queryset:
             writer.writerow([
                 sucursal.nombre_sucursal,
-                sucursal.comercio_id.nombre_comercio,
+                sucursal.comercio.nombre_comercio,
                 'Sí' if sucursal.es_casa_matriz else 'No',
                 sucursal.direccion,
                 sucursal.comuna.nombre_comuna,
@@ -115,7 +115,7 @@ class SucursalAdmin(admin.ModelAdmin):
 class BodegaInline(admin.TabularInline):
     model = Bodega
     extra = 0
-    fields = ('nombre_bodega', 'es_principal', 'sucursal_id')
+    fields = ('nombre_bodega', 'es_principal', 'sucursal')
     readonly_fields = ('es_principal',)
 
 @admin.register(Bodega)
