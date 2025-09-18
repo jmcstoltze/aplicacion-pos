@@ -1,6 +1,17 @@
 from django.db import models
+from django.core.validators import RegexValidator, MinLengthValidator
 
 from usuarios.models import Comuna
+
+# Validadores personalizados
+rut_validator = RegexValidator(
+    regex=r'^\d{7,8}-[\dkK]$',
+    message='El RUT debe estar en formato 12345678-9'
+)
+telefono_validator = RegexValidator(
+    regex=r'^\+?56?[2-9]\d{8}$',
+    message='El teléfono debe ser válido (ej: +56912345678 o 912345678)'
+)
 
 # Representa a un cliente del comercio
 class Cliente(models.Model):
@@ -12,65 +23,128 @@ class Cliente(models.Model):
 
     Attributes:
         rut (CharField): Rol Único Tributario (formato: XXXXXXXX-X)
-            - Longitud: 12 caracteres máx.
-            - No obligatoriamente único (puede repetirse para casos especiales)
-        nombres (CharField): Nombres del cliente (80 chars máx.)
-        ap_paterno (CharField): Apellido paterno (80 chars máx.)
-        ap_materno (CharField): Apellido materno (80 chars máx.)
-        telefono (CharField): Teléfono de contacto (20 chars máx.)
-        email (EmailField): Correo electrónico (80 chars máx.)
-        direccion (CharField): Dirección física (250 chars máx.)
+        nombres (CharField): Nombres del cliente
+        ap_paterno (CharField): Apellido paterno
+        ap_materno (CharField): Apellido materno
+        telefono (CharField): Teléfono de contacto
+        email (EmailField): Correo electrónico
+        direccion (CharField): Dirección física
         estado (BooleanField): Estado activo/inactivo del cliente
-            - Default: True (activo al crear)
-        comuna_id (ForeignKey): Relación con la comuna de residencia
-            - SET_NULL si se elimina la comuna (null=True)
-    
+        comuna_id (ForeignKey): Comuna de residencia
+        fecha_creacion (DateTimeField): Fecha de creación del registro
+        fecha_actualizacion (DateTimeField): Fecha de última actualización
+
     Methods:
-        __str__: Representación legible en formato "Apellidos, Nombres (RUT)"
-        nombre_completo: Propiedad que devuelve el nombre completo formateado
+        __str__: Representación legible
+        nombre_completo: Propiedad que devuelve el nombre completo
+        es_activo: Propiedad que verifica si el cliente está activo
 
     Meta:
-        verbose_name: Configuración para interfaz administrativa
-        ordering: Ordenamiento por defecto (apellido paterno, nombres)
-        indexes: Índices para búsquedas frecuentes
+        Configuración de metadatos para la interfaz administrativa
     """
     
     rut = models.CharField(
-        max_length=12, null=False, blank=False, unique=False,
-        help_text="RUT en formato XX.XXX.XXX-X")
+        max_length=12,
+        null=False,
+        blank=False,
+        unique=True,
+        help_text="RUT en formato 12345678-9 (sin puntos, con guión y dígito verificador)"
+    )
+    
     nombres = models.CharField(
-        max_length=80, null=False, blank=False,
-        help_text="Nombres del cliente (ej: Juan Carlos)")
+        max_length=80,
+        null=False,
+        blank=False,
+        verbose_name="Nombres",
+        help_text="Nombres del cliente (ej: Juan Carlos)"
+    )
+    
     ap_paterno = models.CharField(
-        max_length=80, null=False, blank=False,
-        help_text="Apellido paterno (ej: González)")
+        max_length=80,
+        null=False,
+        blank=False,
+        verbose_name="Apellido Paterno",
+        help_text="Apellido paterno (ej: González)"
+    )
+    
     ap_materno = models.CharField(
-        max_length=80, null=False, blank=False,
-        help_text="Apellido materno (ej: Pérez)")
+        max_length=80,
+        null=False,
+        blank=False,
+        verbose_name="Apellido Materno",
+        help_text="Apellido materno (ej: Pérez)"
+    )
+
     telefono = models.CharField(
-        max_length=20, null=False, blank=False,
-        help_text="Teléfono de contacto (+56912345678)")
+        max_length=20,
+        null=False,
+        blank=False,
+        validators=[telefono_validator],
+        verbose_name="Teléfono",
+        help_text="Teléfono de contacto (+56912345678 o 912345678)"
+    )
+
     email = models.EmailField(
-        max_length=80, null=False, blank=False,
+        max_length=80,
+        null=False,
+        blank=False,
+        verbose_name="Correo Electrónico",
         help_text="Correo electrónico válido (ej: cliente@dominio.com)")
+    
     direccion = models.CharField(
-        max_length=250, null=False, blank=False,
-        help_text="Dirección completa (calle, número, depto)")
+        max_length=250,
+        null=False,
+        blank=False,
+        verbose_name="Dirección",
+        help_text="Dirección completa (calle, número, depto, etc.)")
+    
     estado = models.BooleanField(
-        default=True, # Al crearse por defecto es True
-        help_text="Cliente activo/inactivo")
+        default=True,
+        verbose_name="Estado Activo",
+        help_text="Indica si el cliente está activo en el sistema"
+    )
+
     comuna_id = models.ForeignKey(
-        Comuna, on_delete=models.SET_NULL, null=True,
-        help_text="Comuna de residencia del cliente")
+        Comuna,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Comuna",
+        help_text="Comuna de residencia del cliente"
+    )
+
+    fecha_creacion = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Fecha de Creación",
+        help_text="Fecha y hora en que se creó el registro"
+    )
+
+    fecha_actualizacion = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Fecha de Actualización",
+        help_text="Fecha y hora de la última actualización del registro"
+    )
     
     def __str__(self):
         """Representación legible para selects/admin."""
         return f"{self.ap_paterno} {self.ap_materno}, {self.nombres} ({self.rut})"
-    
+
     class Meta:
         verbose_name = "Cliente"
         verbose_name_plural = "Clientes"
-        ordering = ['ap_paterno', 'ap_materno', 'nombres']  # Orden alfabético
+        ordering = ['ap_paterno', 'ap_materno', 'nombres']
+        indexes = [
+            models.Index(fields=['rut']),
+            models.Index(fields=['ap_paterno', 'ap_materno']),
+            models.Index(fields=['estado']),
+            models.Index(fields=['comuna_id']),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['rut'],
+                name='unique_cliente_rut'
+            ),
+        ]
 
 # Representa a una empresa cliente que compra en el comercio
 class Empresa(models.Model):
@@ -82,57 +156,139 @@ class Empresa(models.Model):
 
     Attributes:
         nombre_empresa (CharField): Nombre comercial o de fantasía
-            - Longitud: 150 caracteres
-            - Requerido (null=False, blank=False)
         razon_social (CharField): Nombre legal registrado
-            - Longitud: 250 caracteres
-            - Único (unique=True)
-            - Requerido
         giro (CharField): Actividad económica principal
-            - Longitud: 150 caracteres
-            - Requerido
-        representante_id (ForeignKey): Relación con el representante legal
-            - PROTECT: Evita eliminación si existe empresa asociada
-            - Relación con modelo Cliente
-        comuna_id (ForeignKey): Comuna de la empresa
-            - PROTECT: Evita eliminación si existe empresa asociada
-            - Relación con modelo Comuna
+        rut_empresa (CharField): RUT de la empresa
+        direccion (CharField): Dirección fiscal
+        telefono (CharField): Teléfono de contacto
+        email (EmailField): Correo electrónico
+        representante_id (ForeignKey): Representante legal
+        comuna_id (ForeignKey): Comuna de ubicación
+        estado (BooleanField): Estado activo/inactivo
+        fecha_creacion (DateTimeField): Fecha de creación
+        fecha_actualizacion (DateTimeField): Fecha de actualización
 
     Methods:
-        __str__: Representación legible (nombre_empresa + razón social + representante)
+        __str__: Representación legible
+        info_completa: Propiedad con información completa
 
     Meta:
-        verbose_name: Configuración para interfaz administrativa
-        ordering: Ordenamiento por defecto (nombre_empresa)
-        indexes: Índices para búsquedas frecuentes
-        constraints: Restricciones de validación
+        Configuración de metadatos para la interfaz administrativa
     """
+
     nombre_empresa = models.CharField(
-        max_length=150, null=False, blank=False,
-        help_text="Nombre de fantasía o marca (ej: 'Tech Solutions')")
+        max_length=150,
+        null=False,
+        blank=False,
+        verbose_name="Nombre de la Empresa",
+        help_text="Nombre de fantasía o marca (ej: 'Tech Solutions')"
+    )
+    
     razon_social = models.CharField(
-        max_length=250, null=False, blank=False, unique=True,
-        help_text="Nombre legal registrado (ej: 'TECH SOLUTIONS S.A.')")
+        max_length=250,
+        null=False,
+        blank=False,
+        unique=True,
+        help_text="Nombre legal registrado (ej: 'TECH SOLUTIONS S.A.')"
+    )
+
     giro = models.CharField(
-        max_length=150, null=False, blank=False,
-        help_text="Actividad económica principal (ej: 'VENTA EQUIPOS TECNOLÓGICOS')")
+        max_length=150,
+        null=False,
+        blank=False,
+        verbose_name="Giro Comercial",
+        help_text="Actividad económica principal (ej: 'VENTA EQUIPOS TECNOLÓGICOS')"
+    )
+
+    rut_empresa = models.CharField(
+        max_length=12,
+        null=False,
+        blank=False,
+        unique=True,
+        validators=[rut_validator],
+        verbose_name="RUT de la Empresa",
+        help_text="RUT en formato 12345678-9 (sin puntos, con guión y dígito verificador)"
+    )
+
+    direccion = models.CharField(
+        max_length=250,
+        null=False,
+        blank=False,
+        verbose_name="Dirección",
+        help_text="Dirección fiscal completa (calle, número, depto, etc.)"
+    )
+
+    telefono = models.CharField(
+        max_length=20,
+        null=False,
+        blank=False,
+        validators=[telefono_validator],
+        verbose_name="Teléfono",
+        help_text="Teléfono de contacto (+56912345678 o 912345678)"
+    )
+
+    email = models.EmailField(
+        max_length=80,
+        null=False,
+        blank=False,
+        verbose_name="Correo Electrónico",
+        help_text="Correo electrónico válido de la empresa"
+    )
+        
     representante_id = models.ForeignKey(
-        Cliente, on_delete=models.PROTECT, # Eliminación protegida
-        help_text="Cliente registrado como representante legal")
+        Cliente,
+        on_delete=models.PROTECT, # Eliminación protegida
+        verbose_name="Representante Legal",
+        help_text="Cliente registrado como representante legal"
+    )
+
     comuna_id = models.ForeignKey(
-        Comuna, on_delete=models.PROTECT, # Eliminación protegida
-        help_text="Comuna de la empresa")
+        Comuna,
+        on_delete=models.PROTECT, # Eliminación protegida
+        verbose_name="Comuna",
+        help_text="Comuna de la empresa"
+    )
+
+    estado = models.BooleanField(
+        default=True,
+        verbose_name="Estado Activo",
+        help_text="Indica si la empresa está activa en el sistema"
+    )
+
+    fecha_creacion = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Fecha de Creación",
+        help_text="Fecha y hora en que se creó el registro"
+    )
+
+    fecha_actualizacion = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Fecha de Actualización",
+        help_text="Fecha y hora de la última actualización del registro"
+    )     
     
     def __str__(self):
         """Representación legible para selects/admin."""
-        return (
-            f"{self.razon_social}\n"
-            f"Giro: {self.giro}\n"
-            f"Representante: {self.representante_id}"
-        )
+        return f"{self.nombre_empresa} - {self.razon_social}"
 
     class Meta:
         verbose_name = "Empresa Cliente"
         verbose_name_plural = "Empresas Clientes"
-        ordering = ['nombre_empresa']  # Orden alfabético
-
+        ordering = ['nombre_empresa']
+        indexes = [
+            models.Index(fields=['razon_social']),
+            models.Index(fields=['rut_empresa']),
+            models.Index(fields=['nombre_empresa']),
+            models.Index(fields=['estado']),
+            models.Index(fields=['comuna_id']),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['razon_social'],
+                name='unique_empresa_razon_social'
+            ),
+            models.UniqueConstraint(
+                fields=['rut_empresa'],
+                name='unique_empresa_rut'
+            ),
+        ]

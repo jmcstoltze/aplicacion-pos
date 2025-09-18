@@ -55,6 +55,8 @@ INSTALLED_APPS = [
     # Apps del proyecto
     'usuarios.apps.UsuariosConfig', ########
     'comercio.apps.ComercioConfig', ########
+    'clientes.apps.ClientesConfig', ########
+    'transacciones.apps.TransaccionesConfig', ########
     # Apps de terceros recomendadas
     'django_extensions', ###################
 ]
