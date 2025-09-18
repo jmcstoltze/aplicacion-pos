@@ -443,5 +443,3 @@ class ItemDocumento(models.Model):
         indexes = [
             models.Index(fields=['documento_id']),
         ]
-
-

@@ -1,0 +1,182 @@
+[
+    {
+        "model": "clientes.caja",
+        "pk": 1,
+        "fields": {
+            "numero_caja": "CAJ101",
+            "nombre_caja": "Principal Centro",
+            "estado": true,
+            "esta_asignada": true,
+            "usuario_id": 4,
+            "sucursal_id": 1
+        }
+    },
+    {
+        "model": "clientes.caja",
+        "pk": 2,
+        "fields": {
+            "numero_caja": "CAJ102",
+            "nombre_caja": "Secundaria Centro",
+            "estado": true,
+            "esta_asignada": false,
+            "usuario_id": null,
+            "sucursal_id": 1
+        }
+    },
+    {
+        "model": "clientes.caja",
+        "pk": 3,
+        "fields": {
+            "numero_caja": "CAJ103",
+            "nombre_caja": "Express Centro",
+            "estado": true,
+            "esta_asignada": true,
+            "usuario_id": 5,
+            "sucursal_id": 1
+        }
+    },
+    {
+        "model": "clientes.caja",
+        "pk": 4,
+        "fields": {
+            "numero_caja": "CAJ201",
+            "nombre_caja": "Principal Norte",
+            "estado": true,
+            "esta_asignada": false,
+            "usuario_id": null,
+            "sucursal_id": 2
+        }
+    },
+    {
+        "model": "clientes.caja",
+        "pk": 5,
+        "fields": {
+            "numero_caja": "CAJ202",
+            "nombre_caja": "Secundaria Norte",
+            "estado": true,
+            "esta_asignada": false,
+            "usuario_id": null,
+            "sucursal_id": 2
+        }
+    },
+    {
+        "model": "clientes.caja",
+        "pk": 6,
+        "fields": {
+            "numero_caja": "CAJ203",
+            "nombre_caja": "Express Norte",
+            "estado": true,
+            "esta_asignada": true,
+            "usuario_id": 5,
+            "sucursal_id": 2
+        }
+    },
+    {
+        "model": "clientes.caja",
+        "pk": 7,
+        "fields": {
+            "numero_caja": "CAJ301",
+            "nombre_caja": "Principal Oriente",
+            "estado": true,
+            "esta_asignada": true,
+            "usuario_id": 6,
+            "sucursal_id": 3
+        }
+    },
+    {
+        "model": "clientes.caja",
+        "pk": 8,
+        "fields": {
+            "numero_caja": "CAJ302",
+            "nombre_caja": "Secundaria Oriente",
+            "estado": true,
+            "esta_asignada": false,
+            "usuario_id": null,
+            "sucursal_id": 3
+        }
+    },
+    {
+        "model": "clientes.caja",
+        "pk": 9,
+        "fields": {
+            "numero_caja": "CAJ303",
+            "nombre_caja": "Express Oriente",
+            "estado": true,
+            "esta_asignada": true,
+            "usuario_id": 5,
+            "sucursal_id": 3
+        }
+    },
+    {
+        "model": "cliente.caja",
+        "pk": 10,
+        "fields": {
+            "numero_caja": "CAJ401",
+            "nombre_caja": "Principal Sur",
+            "estado": true,
+            "esta_asignada": false,
+            "usuario_id": null,
+            "sucursal_id": 4
+        }
+    },
+    {
+        "model": "clientes.caja",
+        "pk": 11,
+        "fields": {
+            "numero_caja": "CAJ402",
+            "nombre_caja": "Secundaria Sur",
+            "estado": true,
+            "esta_asignada": false,
+            "usuario_id": null,
+            "sucursal_id": 4
+        }
+    },
+    {
+        "model": "clientes.caja",
+        "pk": 12,
+        "fields": {
+            "numero_caja": "CAJ403",
+            "nombre_caja": "Express Sur",
+            "estado": true,
+            "esta_asignada": true,
+            "usuario_id": 5,
+            "sucursal_id": 4
+        }
+    },
+    {
+        "model": "comercio.caja",
+        "pk": 13,
+        "fields": {
+            "numero_caja": "CAJ501",
+            "nombre_caja": "Principal Poniente",
+            "estado": true,
+            "esta_asignada": false,
+            "usuario_id": null,
+            "sucursal_id": 5
+        }
+    },
+    {
+        "model": "clientes.caja",
+        "pk": 14,
+        "fields": {
+            "numero_caja": "CAJ502",
+            "nombre_caja": "Secundaria Poniente",
+            "estado": true,
+            "esta_asignada": true,
+            "usuario_id": 5,
+            "sucursal_id": 5
+        }
+    },
+    {
+        "model": "comercio.caja",
+        "pk": 15,
+        "fields": {
+            "numero_caja": "CAJ503",
+            "nombre_caja": "Express Poniente",
+            "estado": false,
+            "esta_asignada": false,
+            "usuario_id": null,
+            "sucursal_id": 5
+        }
+    }
+]

@@ -161,9 +161,9 @@
     },
     {
         "model": "usuarios.usuario",
-        "pk": 12,
+        "pk": 11,
         "fields": {
-            "usuario": 13,
+            "usuario": 12,
             "rut": "17654456-7",
             "nombres": "Gustavo Adolfo",
             "ap_paterno": "López",
@@ -172,6 +172,166 @@
             "telefono": "+569 8888 6666",
             "direccion": "Av de Prueba 5555",
             "comuna": 261,
+            "rol": 3
+        }
+    },
+    {
+        "model": "usuarios.usuario",
+        "pk": 12,
+        "fields": {
+            "usuario": 13,
+            "rut": "18765432-1",
+            "nombres": "Camila Andrea",
+            "ap_paterno": "Rojas",
+            "ap_materno": "Silva",
+            "email": "camila.rojas@gmail.com",
+            "telefono": "+569 4444 5555",
+            "direccion": "Av Las Flores 123",
+            "comuna": 275,
+            "rol": 3
+        }
+    },
+    {
+        "model": "usuarios.usuario",
+        "pk": 13,
+        "fields": {
+            "usuario": 14,
+            "rut": "19654321-2",
+            "nombres": "Fernando José",
+            "ap_paterno": "Mendoza",
+            "ap_materno": "Castro",
+            "email": "fernando.mendoza@gmail.com",
+            "telefono": "+569 5555 6666",
+            "direccion": "Calle Principal 456",
+            "comuna": 278,
+            "rol": 3
+        }
+    },
+    {
+        "model": "usuarios.usuario",
+        "pk": 14,
+        "fields": {
+            "usuario": 15,
+            "rut": "20345678-9",
+            "nombres": "Isabel Cristina",
+            "ap_paterno": "Vargas",
+            "ap_materno": "Ríos",
+            "email": "isabel.vargas@gmail.com",
+            "telefono": "+569 6666 7777",
+            "direccion": "Pasaje Central 789",
+            "comuna": 277,
+            "rol": 3
+        }
+    },
+    {
+        "model": "usuarios.usuario",
+        "pk": 15,
+        "fields": {
+            "usuario": 16,
+            "rut": "21456789-0",
+            "nombres": "Roberto Antonio",
+            "ap_paterno": "Navarro",
+            "ap_materno": "Peña",
+            "email": "roberto.navarro@gmail.com",
+            "telefono": "+569 7777 8888",
+            "direccion": "Av Los Alamos 101",
+            "comuna": 274,
+            "rol": 3
+        }
+    },
+    {
+        "model": "usuarios.usuario",
+        "pk": 16,
+        "fields": {
+            "usuario": 17,
+            "rut": "22567890-1",
+            "nombres": "Patricia Alejandra",
+            "ap_paterno": "Cortés",
+            "ap_materno": "Miranda",
+            "email": "patricia.cortes@gmail.com",
+            "telefono": "+569 8888 9999",
+            "direccion": "Calle Los Pinos 202",
+            "comuna": 263,
+            "rol": 3
+        }
+    },
+    {
+        "model": "usuarios.usuario",
+        "pk": 17,
+        "fields": {
+            "usuario": 18,
+            "rut": "23678901-2",
+            "nombres": "Miguel Ángel",
+            "ap_paterno": "Fuentes",
+            "ap_materno": "Sandoval",
+            "email": "miguel.fuentes@gmail.com",
+            "telefono": "+569 9999 0000",
+            "direccion": "Av Los Robles 303",
+            "comuna": 264,
+            "rol": 3
+        }
+    },
+    {
+        "model": "usuarios.usuario",
+        "pk": 18,
+        "fields": {
+            "usuario": 19,
+            "rut": "24789012-3",
+            "nombres": "Carolina Elizabeth",
+            "ap_paterno": "Pizarro",
+            "ap_materno": "Henríquez",
+            "email": "carolina.pizarro@gmail.com",
+            "telefono": "+569 1111 2222",
+            "direccion": "Pasaje Los Olivos 404",
+            "comuna": 267,
+            "rol": 3
+        }
+    },
+    {
+        "model": "usuarios.usuario",
+        "pk": 19,
+        "fields": {
+            "usuario": 20,
+            "rut": "25890123-4",
+            "nombres": "Javier Ignacio",
+            "ap_paterno": "Salazar",
+            "ap_materno": "Aravena",
+            "email": "javier.salazar@gmail.com",
+            "telefono": "+569 2222 3333",
+            "direccion": "Av Los Cerezos 505",
+            "comuna": 261,
+            "rol": 3
+        }
+    },
+    {
+        "model": "usuarios.usuario",
+        "pk": 20,
+        "fields": {
+            "usuario": 21,
+            "rut": "26901234-5",
+            "nombres": "Natalia Paz",
+            "ap_paterno": "Aguilera",
+            "ap_materno": "Figueroa",
+            "email": "natalia.aguilera@gmail.com",
+            "telefono": "+569 3333 4444",
+            "direccion": "Calle Los Arrayanes 606",
+            "comuna": 275,
+            "rol": 3
+        }
+    },
+    {
+        "model": "usuarios.usuario",
+        "pk": 21,
+        "fields": {
+            "usuario": 22,
+            "rut": "27012345-6",
+            "nombres": "Ricardo Andrés",
+            "ap_paterno": "Bustamante",
+            "ap_materno": "Zúñiga",
+            "email": "ricardo.bustamante@gmail.com",
+            "telefono": "+569 4444 5555",
+            "direccion": "Av Los Tilos 707",
+            "comuna": 278,
             "rol": 3
         }
     }

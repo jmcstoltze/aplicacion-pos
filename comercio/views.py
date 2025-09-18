@@ -353,8 +353,39 @@ def asignacion_sucursales(request) -> HttpResponse | HttpResponseRedirect:
 @login_required
 def asignacion_cajas(request) -> HttpResponse | HttpResponseRedirect:
 
+    # Obtiene el usuario logueado
+    usuario = Usuario.objects.get(usuario=request.user)
+
+    # Inicializar contexto
+    context = {}
+
+    cajeros = Usuario.objects.filter(
+        rol__nombre_rol='Cajero',
+        estado=True
+    ).select_related('rol').order_by('ap_paterno', 'ap_materno', 'nombres')
+
+    context['cajeros'] = cajeros
+
+    if usuario.rol.nombre_rol == 'Administrador':
+        pass
+    elif usuario.rol.nombre_rol == 'Jefe de local':
+        
+        # Verificar si el jefe de local tiene sucursal asignada y en estado activa
+        try:
+            sucursal_asignada = Sucursal.objects.get(jefe_asignado=usuario, estado=True)            
+
+            # Si tiene sucursal asignada, agregar al contexto
+            context['sucursal_asignada'] = sucursal_asignada
+        except Sucursal.DoesNotExist:
+            # No tiene sucursal asignada
+            context['mensaje_error'] = "No tienes una sucursal asignada o está inactiva. Contacta al administrador."
+        except Sucursal.MultipleObjectsReturned:
+            # En caso de que error tenga múltiples sucursales asignadas (no debería pasar)
+            context['mensaje_error'] = "Error: Tienes múltiples sucursales asignadas. Contacta al administrador."
     
+    elif usuario.rol.nombre_rol == 'Cajero':
+        # Los cajeros no deberían acceder a esta vista, pero por si acaso
+        pass
 
-
-    return render(request, 'comercio/views/cajas.html', context = {})
+    return render(request, 'comercio/views/cajas.html', context = context)
 
