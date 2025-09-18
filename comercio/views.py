@@ -352,5 +352,9 @@ def asignacion_sucursales(request) -> HttpResponse | HttpResponseRedirect:
 
 @login_required
 def asignacion_cajas(request) -> HttpResponse | HttpResponseRedirect:
+
+    
+
+
     return render(request, 'comercio/views/cajas.html', context = {})
 
