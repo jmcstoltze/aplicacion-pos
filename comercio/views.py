@@ -10,6 +10,7 @@ from django.contrib import messages
 from django.urls import reverse
 from comercio.models import Producto, StockBodega, Bodega, Sucursal
 from usuarios.models import Rol, Usuario
+from transacciones.models import Caja
 from .services import (
     obtener_productos,
     obtener_categorias,
@@ -359,12 +360,17 @@ def asignacion_cajas(request) -> HttpResponse | HttpResponseRedirect:
     # Inicializar contexto
     context = {}
 
+    # Obtener todos los cajeros activos
     cajeros = Usuario.objects.filter(
-        rol__nombre_rol='Cajero',
+        rol__nombre_rol=Rol.CAJERO,
         estado=True
-    ).select_related('rol').order_by('ap_paterno', 'ap_materno', 'nombres')
+    ).order_by('ap_paterno', 'ap_materno', 'nombres')
+
+    # Obtener todas las cajas activas
+    # cajas = Caja.objects.filter(estado=True).order_by('sucursal__nombre_sucursal', 'nombre_caja')
 
     context['cajeros'] = cajeros
+    # context['cajas'] = cajas
 
     if usuario.rol.nombre_rol == 'Administrador':
         pass
@@ -372,10 +378,18 @@ def asignacion_cajas(request) -> HttpResponse | HttpResponseRedirect:
         
         # Verificar si el jefe de local tiene sucursal asignada y en estado activa
         try:
-            sucursal_asignada = Sucursal.objects.get(jefe_asignado=usuario, estado=True)            
+            sucursal_asignada = Sucursal.objects.get(jefe_asignado=usuario, estado=True)
+
+            # Si tiene sucursal asignada, filtrar cajas solo de esa sucursal
+            cajas = Caja.objects.filter(
+                estado=True, 
+                sucursal_id=sucursal_asignada
+            ).order_by('nombre_caja')
 
             # Si tiene sucursal asignada, agregar al contexto
             context['sucursal_asignada'] = sucursal_asignada
+            context['cajas'] = cajas
+
         except Sucursal.DoesNotExist:
             # No tiene sucursal asignada
             context['mensaje_error'] = "No tienes una sucursal asignada o está inactiva. Contacta al administrador."

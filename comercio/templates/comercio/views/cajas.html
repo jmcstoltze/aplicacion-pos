@@ -53,7 +53,6 @@
 
         <!-- Contenido de la pestaña -->
         <div class="tab-content p-3 border border-top-0 rounded-bottom shadow-sm bg-white">
-
             <!-- Pestaña de Cajeros -->
             <div class="tab-pane fade show active" id="cajeros" role="tabpanel">
                 <div class="row justify-content-center">
@@ -65,49 +64,38 @@
                             <div class="card-body">
                                 <div class="input-group mb-3">
                                     <input type="text" class="form-control" placeholder="Buscar..." id="searchCajeros">
+                                    
                                     <button class="btn btn-outline-secondary" type="button">
                                         <i class="bi bi-search"></i>
                                     </button>
+                                    <button class="btn btn-outline-secondary" type="button" id="btnClearSearchCajeros" title="Limpiar búsqueda">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
                                 </div>
                                 <div class="list-group" style="max-height: 400px; overflow-y: auto;">
-                                    {% for cajero in cajeros %}
-                                    <a href="#" class="list-group-item list-group-item-action cajero-item">
-                                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
-                                            <div class="me-4">
-                                                {{ cajero.ap_paterno }} {{ cajero.ap_materno }}, {{ cajero.nombres }}
+                                    {% if cajeros %}
+                                        {% for cajero in cajeros %}
+                                        <a href="#" class="list-group-item list-group-item-action cajero-item {% if cajero.caja %}active-custom{% endif %}" data-cajero-id="{{ cajero.id }}"
+                                        data-caja-id="{% if cajero.caja %}{{ cajero.caja.id }}{% endif %}">
+                                            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                                                <div class="me-4">
+                                                    {{ cajero.ap_paterno }} {{ cajero.ap_materno }}, {{ cajero.nombres }}
+                                                </div>
+                                                <span class="badge {% if cajero.caja %}bg-custom{% else %}bg-secondary{% endif %}">
+                                                    {% if cajero.caja %}
+                                                        {{ cajero.caja.nombre_caja }}
+                                                    {% else %}
+                                                        Sin asignar
+                                                    {% endif %}
+                                                </span>
                                             </div>
-                                            <span class="badge bg-custom">Caja1</span>
+                                        </a>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="list-group-item text-center text-muted">
+                                            No hay cajeros disponibles
                                         </div>
-                                    </a>
-                                    <a href="#" class="list-group-item list-group-item-action cajero-item active-custom">
-                                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
-                                            <div class="me-4">
-                                                García Martín, Sofía
-                                            </div>
-                                            <span class="badge bg-secondary">Sin asignar</span>
-                                        </div>
-                                    </a>
-                                    <a href="#" class="list-group-item list-group-item-action cajero-item">
-                                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
-                                            <div class="me-4">
-                                                Ruiz, David Sánchez
-                                            </div>
-                                            <span class="badge bg-custom">Caja 3</span>
-                                        </div>
-                                    </a>
-                                    <a href="#" class="list-group-item list-group-item-action cajero-item">
-                                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
-                                            <div class="me-4">
-                                                Díaz Fernández, Elena
-                                            </div>
-                                            <span class="badge bg-custom">Caja 2</span>
-                                        </div>
-                                    </a>
-                                    {% empty %}
-                                    <div class="list-group-item text-center text-muted">
-                                        No hay cajeros disponibles
-                                    </div>
-                                    {% endfor %}
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -119,7 +107,11 @@
                                 <h5 class="mb-0">Asignar Caja</h5>
                             </div>
                             <div class="card-body">
-                                <form id="asignarCajaForm">
+
+                                <!-- Formulario de asignación -->
+                                <form id="asignarCajaForm" method="POST" action="{% url 'asignacion_cajas' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="cajero_id" id="cajeroIdInput" value="{{ cajero_seleccionado_id|default:'' }}">
                                     <div class="mb-3">
                                         <label class="form-label">Cajero seleccionado:</label>
                                         <div class="form-control">García Martín, Sofía</div>

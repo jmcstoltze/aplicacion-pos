@@ -1,18 +1,18 @@
 [
     {
-        "model": "clientes.caja",
+        "model": "transacciones.caja",
         "pk": 1,
         "fields": {
             "numero_caja": "CAJ101",
             "nombre_caja": "Principal Centro",
             "estado": true,
             "esta_asignada": true,
-            "usuario_id": 4,
+            "usuario_id": 8,
             "sucursal_id": 1
         }
     },
     {
-        "model": "clientes.caja",
+        "model": "transacciones.caja",
         "pk": 2,
         "fields": {
             "numero_caja": "CAJ102",
@@ -24,19 +24,19 @@
         }
     },
     {
-        "model": "clientes.caja",
+        "model": "transacciones.caja",
         "pk": 3,
         "fields": {
             "numero_caja": "CAJ103",
             "nombre_caja": "Express Centro",
             "estado": true,
             "esta_asignada": true,
-            "usuario_id": 5,
+            "usuario_id": 9,
             "sucursal_id": 1
         }
     },
     {
-        "model": "clientes.caja",
+        "model": "transacciones.caja",
         "pk": 4,
         "fields": {
             "numero_caja": "CAJ201",
@@ -48,7 +48,7 @@
         }
     },
     {
-        "model": "clientes.caja",
+        "model": "transacciones.caja",
         "pk": 5,
         "fields": {
             "numero_caja": "CAJ202",
@@ -60,31 +60,31 @@
         }
     },
     {
-        "model": "clientes.caja",
+        "model": "transacciones.caja",
         "pk": 6,
         "fields": {
             "numero_caja": "CAJ203",
             "nombre_caja": "Express Norte",
             "estado": true,
             "esta_asignada": true,
-            "usuario_id": 5,
+            "usuario_id": 10,
             "sucursal_id": 2
         }
     },
     {
-        "model": "clientes.caja",
+        "model": "transacciones.caja",
         "pk": 7,
         "fields": {
             "numero_caja": "CAJ301",
             "nombre_caja": "Principal Oriente",
             "estado": true,
             "esta_asignada": true,
-            "usuario_id": 6,
+            "usuario_id": 11,
             "sucursal_id": 3
         }
     },
     {
-        "model": "clientes.caja",
+        "model": "transacciones.caja",
         "pk": 8,
         "fields": {
             "numero_caja": "CAJ302",
@@ -96,19 +96,19 @@
         }
     },
     {
-        "model": "clientes.caja",
+        "model": "transacciones.caja",
         "pk": 9,
         "fields": {
             "numero_caja": "CAJ303",
             "nombre_caja": "Express Oriente",
             "estado": true,
             "esta_asignada": true,
-            "usuario_id": 5,
+            "usuario_id": 12,
             "sucursal_id": 3
         }
     },
     {
-        "model": "cliente.caja",
+        "model": "transacciones.caja",
         "pk": 10,
         "fields": {
             "numero_caja": "CAJ401",
@@ -120,7 +120,7 @@
         }
     },
     {
-        "model": "clientes.caja",
+        "model": "transacciones.caja",
         "pk": 11,
         "fields": {
             "numero_caja": "CAJ402",
@@ -132,19 +132,19 @@
         }
     },
     {
-        "model": "clientes.caja",
+        "model": "transacciones.caja",
         "pk": 12,
         "fields": {
             "numero_caja": "CAJ403",
             "nombre_caja": "Express Sur",
             "estado": true,
             "esta_asignada": true,
-            "usuario_id": 5,
+            "usuario_id": 13,
             "sucursal_id": 4
         }
     },
     {
-        "model": "comercio.caja",
+        "model": "transacciones.caja",
         "pk": 13,
         "fields": {
             "numero_caja": "CAJ501",
@@ -156,19 +156,19 @@
         }
     },
     {
-        "model": "clientes.caja",
+        "model": "transacciones.caja",
         "pk": 14,
         "fields": {
             "numero_caja": "CAJ502",
             "nombre_caja": "Secundaria Poniente",
             "estado": true,
             "esta_asignada": true,
-            "usuario_id": 5,
+            "usuario_id": 14,
             "sucursal_id": 5
         }
     },
     {
-        "model": "comercio.caja",
+        "model": "transacciones.caja",
         "pk": 15,
         "fields": {
             "numero_caja": "CAJ503",
